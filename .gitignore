@@ -1,0 +1,69 @@
+# Local dependencies and build caches
+node_modules/
+.next/
+.turbo/
+.cache/
+dist/
+build/
+coverage/
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.tsbuildinfo
+
+# Temporary publishing checkouts, packages, and local game assets
+/tmp/
+/Roms/
+/References/*.zip
+
+# Local agent instructions and development/publishing metadata
+/.agents/
+/.codex/
+/.openai/
+/AGENTS.md
+/Sources/
+
+# Local tooling state and test reports
+.wrangler/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.playwright/
+playwright-report/
+test-results/
+
+# Local environment settings and credentials
+.env
+.env.*
+!.env.example
+!.env.sample
+*.pem
+*.key
+credentials.json
+*.credentials.json
+
+# Editor and operating-system files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+Desktop.ini
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Local reference material and scripting workspace
+References/*
+Lua/*
+Update-KnowledgeBase.ps1
+Docs/*
+
+.agents/
+.openai/hosting.json/*

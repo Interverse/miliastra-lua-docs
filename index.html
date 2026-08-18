@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A clean, searchable reference for the discovered Miliastra Wonderland Lua API.">
+  <title>MiliLua 7.1 API Reference</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="docs-shell">
+    <header class="topbar">
+      <a class="brand" href="#top" aria-label="MiliLua API home"><span>ML</span> MiliLua API</a>
+      <div class="top-meta"><span>Lua</span><span id="game-version"></span><span id="docs-version"></span><button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch theme">☾</button></div>
+    </header>
+    <aside class="sidebar" aria-label="API categories">
+      <div class="side-label">REFERENCE</div><nav id="category-nav"></nav>
+      <div class="side-label secondary">DATA</div><nav id="data-nav"></nav>
+    </aside>
+    <main id="top">
+      <section class="intro">
+        <p class="eyebrow">CLIENT UI LUA / API REFERENCE</p>
+        <h1>MiliLua 7.1 API Reference</h1>
+        <p class="dek">The searchable Miliastra Wonderland 7.1 Lua API reference.</p>
+        <div class="search-row">
+          <label class="search-box"><span>⌕</span><input id="search" type="search" placeholder="Search functions, properties, types, or enums…" aria-label="Search API"><kbd>/</kbd></label>
+        </div>
+        <div class="stat-strip" id="stats"></div>
+      </section>
+      <div id="function-sections"></div>
+      <div class="empty hidden" id="empty"></div>
+      <div id="data-sections"></div>
+    </main>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>
+
