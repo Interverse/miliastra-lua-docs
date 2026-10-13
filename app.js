@@ -664,10 +664,13 @@ function positionReference(){
   // Place a box corner beside the pointer, rather than beside a row or section.
   const right=clickX+gap,left=clickX-gap-width;
   let x=right+width<=innerWidth-edge?right:left>=edge?left:clamp(right,edge,innerWidth-width-edge);
-  const below=innerHeight-clickY-gap-edge,above=clickY-gap-top;
+  const avoidName=referenceOpener.matches('.method-example,.type-reference');
+  const lowerEdge=avoidName?anchor.bottom:clickY;
+  const upperEdge=avoidName?anchor.top:clickY;
+  const below=innerHeight-lowerEdge-gap-edge,above=upperEdge-gap-top;
   let y,maxHeight,panelWidth=width;
-  if(below>=160||below>=above){y=clickY+gap;maxHeight=Math.min(height,Math.max(100,below));}
-  else{maxHeight=Math.min(height,Math.max(100,above));y=clickY-gap-maxHeight;}
+  if(below>=160||below>=above){y=lowerEdge+gap;maxHeight=Math.min(height,Math.max(0,below));}
+  else{maxHeight=Math.min(height,Math.max(0,above));y=upperEdge-gap-maxHeight;}
   maxHeight=Math.min(maxHeight,innerHeight-top-edge);
   y=clamp(y,top,innerHeight-maxHeight-edge);
   Object.assign(referenceDialog.style,{left:x+'px',top:y+'px',width:panelWidth+'px',maxHeight:maxHeight+'px'});
