@@ -3,6 +3,7 @@
   const controls=document.querySelector('#reading-controls'),header=document.querySelector('.topbar');
   const slot=document.querySelector('#toolbar-controls'),dock=document.createElement('div');
   dock.className='reading-controls';slot.append(dock);
+  const shareDock=document.createElement('div');shareDock.className='share-dock-home';dock.append(shareDock);
   const groups=[controls.querySelector('.search-row'),controls.querySelector('#share-tools')].map(element=>{
     const home=document.createElement('div');home.className='control-home'+(element.id==='share-tools'?' share-tools-home':'');
     element.before(home);home.append(element);return {element,home,docked:false,animation:null};
@@ -11,6 +12,7 @@
   let frame=0;
   function updateHeader(){
     header.classList.toggle('controls-docked',groups.some(group=>group.docked));
+    shareDock.hidden=!groups.some(group=>group.element.id==='share-tools'&&group.docked);
     document.documentElement.style.setProperty('--toolbar-height',header.getBoundingClientRect().height+'px');
     scheduleSidebarHighlight();
     if(languageMenu.matches(':popover-open'))positionLanguageMenu();
@@ -19,7 +21,7 @@
     const {element,home}=group,before=element.getBoundingClientRect();
     const focus=document.activeElement,selection=focus===search?[search.selectionStart,search.selectionEnd]:null;
     group.animation?.cancel();
-    if(next){home.style.height=home.getBoundingClientRect().height+'px';if(element.matches('.search-row'))dock.prepend(element);else dock.append(element);}
+    if(next){home.style.height=home.getBoundingClientRect().height+'px';if(element.matches('.search-row'))dock.prepend(element);else shareDock.append(element);}
     else{home.append(element);home.style.height='';}
     group.docked=next;updateHeader();
     if(element.contains(focus)){focus.focus({preventScroll:true});if(selection)search.setSelectionRange(...selection);}

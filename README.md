@@ -33,13 +33,15 @@ Serve `index.html`, `styles.css`, `app.js`, `i18n.js`, `locale-content.js`, `sha
 
 ## Share references
 
-Use the link icon in a popup to share its complete documentation section. The link icon beside the search field copies the current search, including while creating a selection. Choose **Create selection link**, select individual sections or **Select all shown methods**, then use **Copy selection link**. Selection mode has one copy action, in the same position in the page and toolbar. The **+** button in a popup also adds its section to the selection.
+Use the share icon beside Copy in a method header to share its complete documentation section. The link icon beside the search field copies the current search, including while creating a selection. Choose **Create selection link**, select individual sections or **Select all shown methods**, then use **Copy selection link**. Selection mode has one copy action, in the same position in the page and toolbar. The selection button in a popup also adds its section while selection mode is active.
 
 On desktop, hover or focus a section to reveal its left-edge checkbox. Choosing a section starts selection mode and accents its border. On touch devices, **Create selection link** reveals persistent 44-pixel selection controls; hover is not required. Methods, types, enums, and guides can be selected this way.
 
 Selection links show only the complete linked sections, including descriptions, arguments, returns, and expandable notes. Click **Clear selection** to remove the selection and return to the full reference. Search within a shared selection remains scoped to that selection; its search link preserves both the selection and query. Existing example links still resolve to their corresponding method section.
 
 Single references use `#r=game-TweenSequence&lang=en`; searches use `#q=Tween&lang=en`. Selections (including one-section selections) use `#s=1b.…` or `#s=1d.…`, choosing the shorter bitmap or delta encoding. Links work without a server and include a temporary language override that does not overwrite the reader’s saved preference. The earlier `?ref=…&lang=…` format is also accepted.
+
+Links use separate readable fields grouped by owner or kind (for example, `Lifecycle=OnUpdate,OnStart&Tween=Play&type=Vector3`) when the complete URL is at most 500 characters. Longer selections use compressed `s` links. Both formats preserve language and search; existing compressed links remain supported.
 
 `share-ids.js` must remain append-only: never reorder or remove IDs. `scripts/generate-share-ids.mjs` appends new API entries while preserving published links; the standalone generator runs it automatically.
 

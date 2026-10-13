@@ -1,7 +1,7 @@
 // Share links are self-contained. Version 1 numeric IDs are append-only.
 (()=>{
   const ids=window.MiliShareIds,index=new Map(ids.map((id,i)=>[id,i]));
-  const selected=new Set();let selecting=false,shared=[],feedbackTimer,collectionSignature=null;
+  const selected=new Set();let selecting=false,shared=[],feedbackTimer,collectionSignature=null,selectionWidthAnimation;
   const keys=['Copy link','Copy search link','Copy page link','Select examples','Select results','Clear','Done','selected','Shared examples','Close collection','Add to set','Remove from set','Link copied','Could not copy link','Invalid share link'];
   const rows={
     zhs:'复制链接|复制搜索链接|复制页面链接|选择示例|选择搜索结果|清空|完成|已选|共享示例|关闭集合|加入集合|移出集合|链接已复制|无法复制链接|共享链接无效',
@@ -41,12 +41,31 @@
   const sectionIds=new Map();
   for(const fn of API.functions){const id=fn.owner+'-'+fn.name;sectionIds.set('example-'+id,id);for(const param of fn.params)sectionIds.set('callback-guide-'+id+'-'+param.name,id);}
   const sectionId=id=>sectionIds.get(id)||id;
+  const readableGroups=new Map(),readableIds=new Map();
+  for(const id of new Set(ids.map(sectionId))){
+    const separator=id.indexOf('-');if(separator<1)continue;
+    const group=id.slice(0,separator),name=id.slice(separator+1);
+    if(!readableGroups.has(group))readableGroups.set(group,new Map());
+    readableGroups.get(group).set(name,id);readableIds.set(id,{group,name});
+  }
+  const hasGroups=params=>[...readableGroups.keys()].some(group=>params.has(group));
+  function readGroups(params){
+    const references=[];
+    for(const [group,names] of readableGroups)for(const value of params.getAll(group))for(const name of value.split(',')){
+      if(!names.has(name))throw Error('Unknown reference');references.push(names.get(name));
+    }
+    return references;
+  }
+  const readableHash=params=>params.toString().split('&').map(field=>{
+    const separator=field.indexOf('='),key=decodeURIComponent(field.slice(0,separator));
+    return readableGroups.has(key)?field.replace(/%2C/gi,','):field;
+  }).join('&');
   const scopedSearch={en:'Search selected sections…',zhs:'搜索所选章节…',zht:'搜尋所選章節…',ja:'選択した項目を検索…',ko:'선택한 섹션 검색…',es:'Buscar en las secciones seleccionadas…',fr:'Rechercher dans les sections sélectionnées…',ru:'Поиск в выбранных разделах…',th:'ค้นหาในส่วนที่เลือก…',vi:'Tìm trong các phần đã chọn…',de:'Ausgewählte Abschnitte durchsuchen…',id:'Cari di bagian terpilih…',pt:'Pesquisar nas seções selecionadas…',tr:'Seçilen bölümlerde ara…',it:'Cerca nelle sezioni selezionate…'};
   const linkIcon='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m10 13 4-4m-5 7-2 2a4 4 0 0 1-6-6l4-4a4 4 0 0 1 6 0m2-1 2-2a4 4 0 0 1 6 6l-4 4a4 4 0 0 1-6 0"/></svg>';
   const shareIcon='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V3m-5 5 5-5 5 5M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg>';
   const tools=document.querySelector('#share-tools');
   const searchShare=document.createElement('button');searchShare.type='button';searchShare.className='share-button search-share';searchShare.dataset.shareAction='copy-search';
-  searchShare.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m10 13 4-4m-5 7-2 2a4 4 0 0 1-6-6l4-4a4 4 0 0 1 6 0m2-1 2-2a4 4 0 0 1 6 6l-4 4a4 4 0 0 1-6 0"/></svg>';
+  searchShare.innerHTML=shareIcon;
   search.closest('.search-box').querySelector('kbd').before(searchShare);
   const collection=document.createElement('div');collection.id='shared-references';sections.before(collection);
   const popupActions=document.createElement('div');popupActions.className='reference-share-actions';
@@ -77,9 +96,18 @@
   function makeLink({references=[],searchText='',selection=false}={}){
     references=[...new Set(references.map(sectionId))];
     const url=new URL(location.href);url.search='';url.hash='';const params=new URLSearchParams();
-    if(references.length===1&&!selection)params.set('r',references[0]);else if(references.length)params.set('s',encodeSet(references));
+    for(const id of references){
+      const item=readableIds.get(id);if(!item)continue;
+      params.set(item.group,[params.get(item.group),item.name].filter(Boolean).join(','));
+    }
     if(searchText)params.set('q',searchText);
-    params.set('lang',MiliLocale.code);url.hash=params.toString();return url.href;
+    params.set('lang',MiliLocale.code);url.hash=readableHash(params);
+    // Keep common shares readable without making large collections cumbersome.
+    if(references.length&&url.href.length>500){
+      for(const group of readableGroups.keys())params.delete(group);
+      params.delete('lang');params.set('s',encodeSet(references));params.set('lang',MiliLocale.code);url.hash=params.toString();
+    }
+    return url.href;
   }
   async function copyLink(text,button){
     let copied=false;
@@ -112,6 +140,16 @@
     collection.querySelectorAll('.shared-content').forEach(root=>updateEasing(root));MiliLocale.applyDOM(collection);
   }
   function renderControls(){
+    const modeChanged=document.body.classList.contains('selection-editing')!==selecting;
+    const previousOptions=modeChanged&&!selecting?tools.querySelector('.share-options')?.cloneNode(true):null;
+    const previousOptionsWidth=tools.querySelector('.share-options')?.getBoundingClientRect().width;
+    if(modeChanged&&selecting){
+      const toggle=tools.querySelector('[data-share-action="select-mode"]');
+      if(toggle)tools.style.setProperty('--selection-main-width',toggle.getBoundingClientRect().width+'px');
+    }
+    const widthHost=tools.closest('.share-tools-home,.share-dock-home')||tools;
+    const previousWidth=widthHost.getBoundingClientRect().width;
+    if(modeChanged){selectionWidthAnimation?.cancel();tools.classList.remove('selection-resizing');}
     document.body.classList.toggle('selection-editing',selecting);
     search.placeholder=shared.length?scopedSearch[MiliLocale.code]:MiliLocale.t('Search functions, properties, types, or enums…');
     searchShare.hidden=!query.trim();searchShare.title=label('Copy search link');searchShare.setAttribute('aria-label',label('Copy search link'));
@@ -133,6 +171,33 @@
       control.innerHTML='<span class="selection-checkbox" aria-hidden="true">'+(checked?'✓':'')+'</span>';
     }
     updatePopup();
+    if(modeChanged&&!matchMedia('(prefers-reduced-motion: reduce)').matches){
+      const sliding=selecting?tools.querySelector('.share-options'):previousOptions;
+      if(sliding){
+        let exitMask;
+        if(!selecting){
+          exitMask=document.createElement('div');exitMask.className='selection-exit-mask';exitMask.setAttribute('aria-hidden','true');exitMask.style.width=previousOptionsWidth+'px';
+          sliding.style.width='100%';exitMask.append(sliding);tools.append(exitMask);
+        }
+        const frames=selecting?
+          [{transform:'translateX(24px)',opacity:0,clipPath:'inset(0 0 0 100%)'},{transform:'translateX(0)',opacity:1,clipPath:'inset(0 0 0 0)'}]:
+          [{transform:'translateX(0)',opacity:1},{transform:'translateX(100%)',opacity:1}];
+        const animation=sliding.animate(frames,{duration:260,easing:'cubic-bezier(.4,0,.2,1)'});
+        if(exitMask)animation.finished.catch(()=>{}).then(()=>exitMask.remove());
+      }
+    }
+    if(modeChanged&&!matchMedia('(prefers-reduced-motion: reduce)').matches){
+      const nextWidth=widthHost.getBoundingClientRect().width;
+      if(previousWidth&&nextWidth&&Math.abs(previousWidth-nextWidth)>1){
+        tools.classList.add('selection-resizing');
+        selectionWidthAnimation=widthHost.animate([
+          {flexBasis:previousWidth+'px',flexGrow:0,flexShrink:0},
+          {flexBasis:nextWidth+'px',flexGrow:0,flexShrink:0}
+        ],{duration:260,easing:'cubic-bezier(.4,0,.2,1)'});
+        const currentAnimation=selectionWidthAnimation;
+        currentAnimation.finished.catch(()=>{}).then(()=>{if(selectionWidthAnimation===currentAnimation)tools.classList.remove('selection-resizing');});
+      }
+    }
   }
   function updateFilteredView(){
     const filtered=shared.length>0;sections.hidden=filtered;dataSections.hidden=filtered;empty.hidden=filtered;document.body.classList.toggle('selection-filtered',filtered);
@@ -174,15 +239,15 @@
   });
   function restoreLink(){
     let params=new URLSearchParams(location.hash.slice(1));
-    if(!['r','s','q','ref','refs','lang'].some(key=>params.has(key)))params=new URLSearchParams(location.search);
-    if(!['r','s','q','ref','refs'].some(key=>params.has(key))){
+    if(!hasGroups(params)&&!['r','s','q','ref','refs','lang'].some(key=>params.has(key)))params=new URLSearchParams(location.search);
+    if(!hasGroups(params)&&!['r','s','q','ref','refs'].some(key=>params.has(key))){
       if(params.has('lang')&&MiliLocale.codes.includes(params.get('lang'))){shared=[];query='';search.value='';revealedReferences.clear();if(isReferenceOpen())hideReferencePanel();MiliLocale.apply(params.get('lang'),false);}
       return;
     }
     try{
       if(params.get('q')?.length>2000)throw Error('Search too long');
       const reference=params.get('r')||params.get('ref');
-      const references=params.has('s')?decodeSet(params.get('s')):params.has('refs')?params.get('refs').split(','):reference?[reference]:[];
+      const references=params.has('s')?decodeSet(params.get('s')):params.has('refs')?params.get('refs').split(','):reference?[reference]:readGroups(params);
       if(references.length>ids.length||references.some(id=>!index.has(id)||!referenceContent(id)))throw Error('Unknown reference');
       shared=[...new Set(references.map(sectionId))];selected.clear();shared.forEach(id=>selected.add(id));
       query=params.get('q')||'';search.value=query;revealedReferences.clear();
