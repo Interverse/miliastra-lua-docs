@@ -321,7 +321,7 @@ html[data-theme="dark"] .language-picker select{color-scheme:dark}
 .selection-checkbox{display:grid;place-items:center;width:16px;height:16px;border:1px solid currentColor;border-radius:3px;font:700 12px/1 system-ui,sans-serif}
 .section-select-control[aria-checked="true"]{color:var(--teal);border-color:var(--teal);background:var(--paper-2)}
 :root body .section-selected,:root body .section-selected:hover{border-color:var(--teal);box-shadow:none}
-.section-selected::after{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--teal);border-radius:7px 0 0 7px;pointer-events:none;z-index:2}
+.section-selected::after{content:'';position:absolute;inset:-1px;border-left:3px solid var(--teal);border-radius:inherit;pointer-events:none;z-index:2}
 .section-selected>.function-head,.section-selected>.property-title,.section-selected>.enum-heading{background:color-mix(in srgb,var(--teal) 5%,var(--paper-2));border-radius:7px 7px 0 0}
 
 @media(max-width:720px){.section-select-control{left:-14px}.section-selectable::before{left:-18px;width:18px}}

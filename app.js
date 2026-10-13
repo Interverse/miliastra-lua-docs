@@ -18,7 +18,7 @@ function callbackGuide(entry){
     timing='Runs when the named client signal arrives.';receives='Signal name and parameters, indexed in server contract order.';
     example='-- TextBox; the first signal parameter is a number.\nlocal function onScore(signalName, values)\n    script.object.text = "Score: " .. values[1]\nend';
   }else if(entry.name==='RegisterCustomVariableChangedHandler'){
-    timing='Runs when the watched variable changes.';receives='Entity type and variable name; reread the current value.';
+    timing='Runs when the watched variable changes.';receives='Entity type and variable name.';
     example='-- TextBox showing the watched numeric variable.\nlocal function onChanged(entityType, name)\n    local value = game.GetGlobalCustomVariableValue(entityType, name)\n    script.object.text = "Score: " .. (value or 0)\nend';
   }else if(entry.name==='RefreshItems'){
     timing='Runs once for each newly created grid item.';receives='Created control and its zero-based item index.';
@@ -36,8 +36,7 @@ function callbackGuide(entry){
     timing=entry.name==='InsertCallback'?'Runs at the specified sequence time.':entry.name==='AppendCallback'?'Runs when the sequence reaches this callback.':/StepComplete/.test(entry.name)?'Runs when a playback loop or playback completes.':'Runs when playback completes.';
     example='local function onPlayback()\n    script.object:SetVisible(false) -- Dismiss the control.\nend';
   }
-  const cleanup=/^Remove/.test(entry.name)?'<p>Pass the exact function previously registered; a new function will not remove it.</p>':'';
-  return '<div class="method-description"><p>'+esc(timing)+'</p><p><strong>Receives:</strong> '+esc(receives)+'</p><p><strong>Returns:</strong> '+esc(returns)+'</p>'+cleanup+codeBlock(example)+'<p><a class="api-reference" data-api-reference href="#example-'+esc(entry.owner)+'-'+esc(entry.name)+'">Full method example</a></p></div>';
+  return '<div class="method-description"><p>'+esc(timing)+'</p><p><strong>Receives:</strong> '+esc(receives)+'</p>'+(returns==='No return value required.'?'':'<p><strong>Returns:</strong> '+esc(returns)+'</p>')+codeBlock(example)+'<p><a class="api-reference" data-api-reference href="#example-'+esc(entry.owner)+'-'+esc(entry.name)+'">Full method example</a></p></div>';
 }
 function details(entry){if(!entry.params.length&&!entry.returns.length)return"";return'<div class="signature-details">'+entry.params.map(param=>'<div class="detail-row"><span class="detail-kind">PARAM</span><code>'+esc(param.name)+'</code><code class="type">'+parameterType(entry,param)+'</code><span>'+inlineDoc(param.description)+'</span></div>').join("")+entry.returns.map((item,index)=>'<div class="detail-row"><span class="detail-kind return">RETURN</span><code>'+esc(item.name||("value "+(index+1)))+'</code><code class="type">'+linkedType(item.type)+'</code><span>'+inlineDoc(item.description)+'</span></div>').join("")+'</div>'}
 function callbackExample(entry,param){
