@@ -1,0 +1,16 @@
+{
+  "zhs": ["顶层代码", "全局脚本", "脚本", "文本框"],
+  "zht": ["頂層程式碼", "全域腳本", "腳本", "文字方塊"],
+  "ja": ["トップレベルのコード", "グローバルスクリプト", "スクリプト", "テキストボックス"],
+  "ko": ["최상위 코드", "전역 스크립트", "스크립트", "텍스트 상자"],
+  "es": ["Código de nivel superior", "Script global", "script", "Cuadro de texto"],
+  "fr": ["Code de premier niveau", "Script global", "script", "Zone de texte"],
+  "ru": ["Код верхнего уровня", "Глобальный скрипт", "скрипт", "Текстовое поле"],
+  "th": ["โค้ดระดับบนสุด", "สคริปต์ส่วนกลาง", "สคริปต์", "กล่องข้อความ"],
+  "vi": ["Mã cấp cao nhất", "Script toàn cục", "script", "Hộp văn bản"],
+  "de": ["Code auf oberster Ebene", "Globales Skript", "Skript", "Textfeld"],
+  "id": ["Kode tingkat teratas", "Skrip global", "skrip", "Kotak teks"],
+  "pt": ["Código de nível superior", "Script global", "script", "Caixa de texto"],
+  "tr": ["Üst düzey kod", "Genel betik", "betik", "Metin kutusu"],
+  "it": ["Codice di primo livello", "Script globale", "script", "Casella di testo"]
+}

@@ -1,0 +1,67 @@
+{
+  "ja": {
+    "Logging requirements": "ログの要件",
+    "Lifecycle conditions": "ライフサイクルの実行条件",
+    "The Client Control to get the index of.": "インデックスを取得する Client Control。",
+    "Returns the list item dimensions.": "リスト項目のサイズを返します。",
+    "The height of list items.": "リスト項目の高さ。",
+    "The horizontal spacing between list items.": "リスト項目間の横方向の間隔。",
+    "Returns the content area padding.": "コンテンツ領域の余白を返します。",
+    "The padding from the top of the content area.": "コンテンツ領域の上側の余白。",
+    "The padding from the bottom of the content area.": "コンテンツ領域の下側の余白。",
+    "The padding from the left of the content area.": "コンテンツ領域の左側の余白。",
+    "The padding from the right of the content area.": "コンテンツ領域の右側の余白。",
+    "Item replacement & lifecycle callbacks": "項目の置き換えとライフサイクルのコールバック",
+    "is the instantiated Client Control and": "は生成された Client Control、",
+    "The return order for GetPadding() is unverified. The API declaration lists top, bottom, left, right; the official update notes list left, right, top, bottom.": "GetPadding() の戻り値の順序はゲーム内で未検証です。API の宣言では top, bottom, left, right、公式の更新情報では left, right, top, bottom の順に記載されています。"
+  },
+  "fr": {
+    "Lifecycle conditions": "Conditions du cycle de vie",
+    "The return order for GetPadding() is unverified. The API declaration lists top, bottom, left, right; the official update notes list left, right, top, bottom.": "L’ordre des valeurs renvoyées par GetPadding() n’a pas été vérifié dans le jeu. La déclaration de l’API indique top, bottom, left, right ; les notes officielles de mise à jour indiquent left, right, top, bottom."
+  },
+  "de": {
+    "The animation layer.": "Die Animationsebene.",
+    "The scroll direction.": "Die Scrollrichtung.",
+    "The image source type.": "Der Typ der Bildquelle.",
+    "The image asset ID.": "Die ID der Bildressource.",
+    "The color of the image.": "Die Farbe des Bildes.",
+    "The image type.": "Der Bildtyp.",
+    "Click & press": "Klicken und Drücken",
+    "Right stick": "Rechter Stick",
+    "Left stick": "Linker Stick",
+    "The return order for GetPadding() is unverified. The API declaration lists top, bottom, left, right; the official update notes list left, right, top, bottom.": "Die Reihenfolge der Rückgabewerte von GetPadding() wurde im Spiel nicht überprüft. Die API-Deklaration nennt top, bottom, left, right; die offiziellen Update-Hinweise nennen left, right, top, bottom."
+  },
+  "zhs": {
+    "The return order for GetPadding() is unverified. The API declaration lists top, bottom, left, right; the official update notes list left, right, top, bottom.": "GetPadding() 返回值的顺序尚未在游戏中验证。API 声明列出的顺序为 top, bottom, left, right；官方更新说明列出的顺序为 left, right, top, bottom。"
+  },
+  "zht": {
+    "The return order for GetPadding() is unverified. The API declaration lists top, bottom, left, right; the official update notes list left, right, top, bottom.": "GetPadding() 傳回值的順序尚未在遊戲中驗證。API 宣告列出的順序為 top, bottom, left, right；官方更新說明列出的順序為 left, right, top, bottom。"
+  },
+  "ko": {
+    "The return order for GetPadding() is unverified. The API declaration lists top, bottom, left, right; the official update notes list left, right, top, bottom.": "GetPadding()의 반환 순서는 게임에서 검증되지 않았습니다. API 선언에는 top, bottom, left, right 순서로, 공식 업데이트 안내에는 left, right, top, bottom 순서로 나와 있습니다."
+  },
+  "es": {
+    "The return order for GetPadding() is unverified. The API declaration lists top, bottom, left, right; the official update notes list left, right, top, bottom.": "El orden de retorno de GetPadding() no se ha verificado en el juego. La declaración de la API indica top, bottom, left, right; las notas oficiales de actualización indican left, right, top, bottom."
+  },
+  "ru": {
+    "The return order for GetPadding() is unverified. The API declaration lists top, bottom, left, right; the official update notes list left, right, top, bottom.": "Порядок возвращаемых значений GetPadding() не проверен в игре. В объявлении API указан порядок top, bottom, left, right; в официальных примечаниях к обновлению — left, right, top, bottom."
+  },
+  "th": {
+    "The return order for GetPadding() is unverified. The API declaration lists top, bottom, left, right; the official update notes list left, right, top, bottom.": "ยังไม่ได้ตรวจสอบลำดับค่าที่ GetPadding() คืนในเกม การประกาศ API ระบุลำดับ top, bottom, left, right แต่บันทึกอัปเดตอย่างเป็นทางการระบุ left, right, top, bottom"
+  },
+  "vi": {
+    "The return order for GetPadding() is unverified. The API declaration lists top, bottom, left, right; the official update notes list left, right, top, bottom.": "Thứ tự giá trị trả về của GetPadding() chưa được kiểm chứng trong trò chơi. Khai báo API ghi top, bottom, left, right; ghi chú cập nhật chính thức ghi left, right, top, bottom."
+  },
+  "id": {
+    "The return order for GetPadding() is unverified. The API declaration lists top, bottom, left, right; the official update notes list left, right, top, bottom.": "Urutan nilai yang dikembalikan GetPadding() belum diverifikasi dalam game. Deklarasi API mencantumkan top, bottom, left, right; catatan pembaruan resmi mencantumkan left, right, top, bottom."
+  },
+  "pt": {
+    "The return order for GetPadding() is unverified. The API declaration lists top, bottom, left, right; the official update notes list left, right, top, bottom.": "A ordem dos valores retornados por GetPadding() não foi verificada no jogo. A declaração da API indica top, bottom, left, right; as notas oficiais de atualização indicam left, right, top, bottom."
+  },
+  "tr": {
+    "The return order for GetPadding() is unverified. The API declaration lists top, bottom, left, right; the official update notes list left, right, top, bottom.": "GetPadding() dönüş değerlerinin sırası oyunda doğrulanmamıştır. API bildirimi top, bottom, left, right sırasını; resmî güncelleme notları ise left, right, top, bottom sırasını belirtir."
+  },
+  "it": {
+    "The return order for GetPadding() is unverified. The API declaration lists top, bottom, left, right; the official update notes list left, right, top, bottom.": "L’ordine dei valori restituiti da GetPadding() non è stato verificato nel gioco. La dichiarazione API indica top, bottom, left, right; le note ufficiali di aggiornamento indicano left, right, top, bottom."
+  }
+}

@@ -135,7 +135,7 @@ if (colorValue) colorValue.description += "\n\nRetrieve the red, green, blue, an
 // Keep conflicting source claims explicit rather than silently upgrading them.
 const padding = functions.find(fn => fn.owner === "ClientUIGridScrollerControl" && fn.name === "GetPadding");
 padding.status = "uncertain";
-padding.note = "The new library declares top/bottom/left/right; official 2026-08-25 update notes declare left/right/top/bottom. Component order remains unconfirmed.";
+padding.note = "The return order for GetPadding() is unverified. The API declaration lists top, bottom, left, right; the official update notes list left, right, top, bottom.";
 for (const name of ["GetSiblingIndex", "SetSiblingIndex"]) {
   const fn = functions.find(fn => fn.owner === "ClientUIBaseControl" && fn.name === name);
   fn.status = "uncertain";

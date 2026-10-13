@@ -41,7 +41,8 @@ export function mergeLibrary(root, data) {
       const field = line.match(/^---@field\s+(.+)/);
       if (field && currentClass) {
         const value = named(field[1]);
-        upsert(data.properties, { owner: currentClass === "Script" ? "script" : currentClass, ...value, description: value.description || doc(comments), source }, item => `${item.owner}.${item.name}`);
+        const description = (value.description || doc(comments)).replace(/^#\s+(Only tweenable\b)/, '$1');
+        upsert(data.properties, { owner: currentClass === "Script" ? "script" : currentClass, ...value, description, source }, item => `${item.owner}.${item.name}`);
         comments = [];
         continue;
       }

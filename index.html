@@ -11,8 +11,10 @@
   <div class="docs-shell">
     <header class="topbar">
       <a class="brand" href="#top" aria-label="MiliLua API home"><span>ML</span> MiliLua API</a>
-      <div class="top-meta"><span>Lua</span><span id="game-version"></span><span id="docs-version"></span><button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch theme">☾</button></div>
+      <div id="toolbar-controls" class="toolbar-controls-slot"></div>
+      <div class="top-meta"><span>Lua</span><span id="game-version"></span><span id="docs-version"></span><button class="language-picker" id="language-trigger" type="button" aria-label="Language" aria-haspopup="listbox" aria-controls="language-menu" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c5 5 5 13 0 18M12 3c-5 5-5 13 0 18"/></svg><span id="language-name">English</span><svg class="language-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m7 10 5 5 5-5"/></svg></button><select id="language-select" aria-label="Language" hidden></select><button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch theme">☾</button></div>
     </header>
+    <div id="language-menu" class="language-menu" popover="manual" role="listbox" aria-label="Language"></div>
     <aside class="sidebar" aria-label="API categories">
       <div class="side-label">REFERENCE</div><nav id="category-nav"></nav>
       <div class="side-label secondary">DATA</div><nav id="data-nav"></nav>
@@ -22,10 +24,13 @@
         <p class="eyebrow">CLIENT UI LUA / API REFERENCE</p>
         <h1>MiliLua 7.1 API Reference</h1>
         <p class="dek">The searchable Miliastra Wonderland 7.1 Lua API reference.</p>
-        <div class="search-row">
+        <div id="controls-home" class="controls-home"><div id="reading-controls" class="reading-controls"><div class="search-row">
           <label class="search-box"><span>⌕</span><input id="search" type="search" placeholder="Search functions, properties, types, or enums…" aria-label="Search API"><kbd>/</kbd></label>
         </div>
+        <div id="share-tools" class="share-tools"></div>
+        </div></div>
         <p class="example-hint">Click a method name for an example. Double-click to copy its name.</p>
+        <p class="language-note" id="language-note" hidden></p>
         <div class="stat-strip" id="stats"></div>
       </section>
       <div id="function-sections"></div>
@@ -33,7 +38,12 @@
       <div id="data-sections"></div>
     </main>
   </div>
+  <script src="locale-content.js"></script>
+  <script src="i18n.js"></script>
   <script src="app.js"></script>
+  <script src="share-ids.js"></script>
+  <script src="share.js"></script>
+  <script src="toolbar.js"></script>
 </body>
 </html>
 
