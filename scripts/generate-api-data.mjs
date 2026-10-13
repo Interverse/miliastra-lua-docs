@@ -152,6 +152,11 @@ const data = { version: "7.1", gameVersion: "7.1", generatedAt: "2026-10-12", so
 const docsDir = path.join(root, "Docs");
 localizeDocs(data);
 resolveEditorAliases(data);
+// Callback argument labels match the documentation examples; vendor files stay unchanged.
+const variableChanged = data.functions.find(fn => fn.owner === "script" && fn.name === "RegisterCustomVariableChangedHandler");
+const variableCallback = variableChanged?.params.find(param => param.name === "callback");
+if (variableCallback) variableCallback.type = variableCallback.type.replace("function(entity:", "function(entityType:");
+
 fs.mkdirSync(docsDir, { recursive: true });
 fs.writeFileSync(path.join(docsDir, "MiliLua_API_Data.json"), `${JSON.stringify(data, null, 2)}\n`);
 console.log(`Generated ${data.functions.length} functions, ${data.properties.length} properties, ${data.types.length} types, and ${data.enums.length} enum groups.`);
