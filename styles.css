@@ -226,6 +226,11 @@ html[data-theme="dark"] .language-lua .lua-featured-method{color:#75e2cc}
 .method-example{color:var(--ink);text-decoration-line:underline;text-decoration-style:dotted;text-decoration-color:color-mix(in srgb,var(--teal) 65%,transparent);text-underline-offset:4px;cursor:pointer;border-radius:2px}
 .method-example:hover,.method-example:focus-visible{color:var(--teal);text-decoration-style:solid;text-decoration-color:var(--teal)}
 .method-example:focus-visible{outline:2px solid var(--teal);outline-offset:4px}
+.method-example{position:relative}
+.method-example.example-pending{color:var(--teal);text-decoration-color:transparent}
+.method-example.example-pending::after{content:'';position:absolute;left:0;right:0;bottom:-4px;height:2px;background:var(--teal);transform-origin:left;animation:example-progress .3s ease-out both;pointer-events:none}
+@keyframes example-progress{from{transform:scaleX(.08);opacity:.5}to{transform:scaleX(1);opacity:1}}
+@media(prefers-reduced-motion:reduce){.method-example.example-pending::after{animation:none;transform:scaleX(1)}}
 .example-hint{margin:10px 0 0;color:var(--muted);font-size:12px}
 .copy-toast{position:fixed;bottom:24px;left:50%;transform:translate(-50%,10px);opacity:0;pointer-events:none;z-index:1000;padding:10px 16px;border:1px solid var(--line);border-radius:7px;background:var(--paper-2);color:var(--ink);box-shadow:0 4px 18px #0002;font:13px/1.5 system-ui,sans-serif;max-width:calc(100vw - 32px);transition:opacity .18s ease,transform .18s ease}
 .copy-toast{transform:translateY(5px)}

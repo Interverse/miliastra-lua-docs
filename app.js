@@ -9,7 +9,35 @@ document.querySelector("#category-nav").innerHTML=owners.map(owner=>'<a href="#c
 document.querySelector("#data-nav").innerHTML='<a href="#properties"><span>Properties &amp; types</span><b>'+API.properties.length+'</b></a><a href="#enums"><span>Enums</span><b>'+API.enums.length+'</b></a>';
 document.querySelector("#stats").innerHTML='<div><strong>'+API.functions.length+'</strong><span>functions</span></div><div><strong>'+owners.length+'</strong><span>categories</span></div><div><strong>'+API.enums.reduce((sum,item)=>sum+item.values.length,0)+'</strong><span>enum values</span></div>';
 function parameterType(entry,param){
+  if(/^function\b/.test(param.type))return '<a class="type-reference" data-api-reference href="#callback-guide-'+esc(entry.owner)+'-'+esc(entry.name)+'-'+esc(param.name)+'" title="Callback arguments, timing, and example">function</a>'+linkedType(param.type.slice(8));
   return linkedType(param.type);
+}
+function callbackGuide(entry){
+  let timing='',receives='No arguments.',returns='No return value required.',example='';
+  if(entry.name==='RegisterServerSignalHandler'){
+    timing='Runs when the named client signal arrives.';receives='Signal name and parameters, indexed in server contract order.';
+    example='-- TextBox; the first signal parameter is a number.\nlocal function onScore(signalName, values)\n    script.object.text = "Score: " .. values[1]\nend';
+  }else if(entry.name==='RegisterCustomVariableChangedHandler'){
+    timing='Runs when the watched variable changes.';receives='Entity type and variable name; reread the current value.';
+    example='-- TextBox showing the watched numeric variable.\nlocal function onChanged(entityType, name)\n    local value = game.GetGlobalCustomVariableValue(entityType, name)\n    script.object.text = "Score: " .. (value or 0)\nend';
+  }else if(entry.name==='RefreshItems'){
+    timing='Runs once for each newly created grid item.';receives='Created control and its zero-based item index.';
+    example='local function configureItem(control, index)\n    control.name = "Inventory slot " .. (index + 1)\nend';
+  }else if(/CursorEventListener/.test(entry.name)){
+    timing='Runs for the registered cursor event.';receives='CursorEventData, containing cursor positions.';
+    example='-- The event area has a child TextBox named Coordinates.\nlocal function onCursor(eventData)\n    local x, y = eventData:GetUIPos()\n    local label = script.object:GetChild("Coordinates")\n    if label then label.text = "X: " .. x .. " Y: " .. y end\nend';
+  }else if(/KeyEventListener/.test(entry.name)){
+    timing='Runs for the registered key event.';returns='Return a boolean indicating whether the event is complete.';
+    example='local function onKey()\n    script.object:SetAnchoredPosition(0, 0)\n    return true -- Mark this event complete.\nend';
+  }else if(/NavigationEventListener/.test(entry.name)){
+    timing='Runs for the registered controller navigation event.';
+    example='-- Use with the Focus navigation event.\nlocal function onFocus()\n    script.object:SetLocalScale(1.05, 1.05, 1)\nend';
+  }else{
+    timing=entry.name==='InsertCallback'?'Runs at the specified sequence time.':entry.name==='AppendCallback'?'Runs when the sequence reaches this callback.':/StepComplete/.test(entry.name)?'Runs when a playback loop or playback completes.':'Runs when playback completes.';
+    example='local function onPlayback()\n    script.object:SetVisible(false) -- Dismiss the control.\nend';
+  }
+  const cleanup=/^Remove/.test(entry.name)?'<p>Pass the exact function previously registered; a new function will not remove it.</p>':'';
+  return '<div class="method-description"><p>'+esc(timing)+'</p><p><strong>Receives:</strong> '+esc(receives)+'</p><p><strong>Returns:</strong> '+esc(returns)+'</p>'+cleanup+codeBlock(example)+'<p><a class="api-reference" data-api-reference href="#example-'+esc(entry.owner)+'-'+esc(entry.name)+'">Full method example</a></p></div>';
 }
 function details(entry){if(!entry.params.length&&!entry.returns.length)return"";return'<div class="signature-details">'+entry.params.map(param=>'<div class="detail-row"><span class="detail-kind">PARAM</span><code>'+esc(param.name)+'</code><code class="type">'+parameterType(entry,param)+'</code><span>'+inlineDoc(param.description)+'</span></div>').join("")+entry.returns.map((item,index)=>'<div class="detail-row"><span class="detail-kind return">RETURN</span><code>'+esc(item.name||("value "+(index+1)))+'</code><code class="type">'+linkedType(item.type)+'</code><span>'+inlineDoc(item.description)+'</span></div>').join("")+'</div>'}
 function callbackExample(entry,param){
@@ -635,28 +663,47 @@ referenceDialog.setAttribute('role','region');
 referenceDialog.setAttribute('aria-labelledby','reference-dialog-title');
 referenceDialog.innerHTML='<header class="reference-dialog-head"><button type="button" class="reference-back" hidden>Back</button><h2 id="reference-dialog-title"></h2><button type="button" class="reference-close" aria-label="Close reference">×</button></header><div class="reference-dialog-body" tabindex="0"></div>';
 document.body.appendChild(referenceDialog);
-let referenceHistory=[],referenceOpener=null,referenceClick=null,referenceDragged=false;
+let referenceHistory=[],referenceOpener=null,referenceClick=null,referenceDragged=false,referencePagePosition=null;
 const codeMeasure=document.createElement('canvas').getContext('2d');
+const codeWidthCache=new Map(),exampleContentCache=new Map();
 function referenceCodeWidth(){
   const blocks=[...referenceDialog.querySelectorAll('pre code')];
   if(!blocks.length)return null;
   let widest=0;
   for(const block of blocks){
     const style=getComputedStyle(block);
-    codeMeasure.font=style.font||'13px monospace';
-    for(const line of block.textContent.split('\n'))widest=Math.max(widest,codeMeasure.measureText(line).width);
+    const font=style.font||'13px monospace',key=font+'\n'+block.textContent;
+    let blockWidth=codeWidthCache.get(key);
+    if(blockWidth===undefined){
+      codeMeasure.font=font;blockWidth=0;
+      for(const line of block.textContent.split('\n'))blockWidth=Math.max(blockWidth,codeMeasure.measureText(line).width);
+      codeWidthCache.set(key,blockWidth);
+    }
+    widest=Math.max(widest,blockWidth);
   }
   // Include syntax weight, code padding, body padding, and the vertical scrollbar.
   return Math.ceil(widest*1.04+90);
+}
+function fitReferenceWidth(){
+  const maxWidth=innerWidth-24;
+  let width=Math.min(Math.max(360,referenceCodeWidth()||620),maxWidth);
+  referenceDialog.style.width=width+'px';
+  const body=referenceDialog.querySelector('.reference-dialog-body');
+  // Account for property tables and other content, not only code line lengths.
+  for(let pass=0;pass<3;pass++){
+    const overflow=body.scrollWidth-body.clientWidth;
+    if(overflow<=1||width>=maxWidth)break;
+    width=Math.min(maxWidth,width+overflow+2);
+    referenceDialog.style.width=width+'px';
+  }
+  return width;
 }
 function positionReference(){
   if(!referenceDialog.matches(':popover-open')||!referenceOpener?.isConnected)return;
   if(referenceDragged)return;
   const anchor=referenceOpener.getBoundingClientRect();
   const gap=10,edge=12,top=document.querySelector('.topbar').getBoundingClientRect().bottom+edge;
-  const measured=referenceCodeWidth();
-  const width=Math.min(measured?Math.max(360,measured):620,innerWidth-2*edge);
-  referenceDialog.style.width=width+'px';
+  const width=fitReferenceWidth();
   referenceDialog.style.maxHeight=Math.min(600,innerHeight-top-edge)+'px';
   const height=referenceDialog.getBoundingClientRect().height;
   const clamp=(n,min,max)=>Math.max(min,Math.min(n,max));
@@ -674,9 +721,22 @@ function positionReference(){
   maxHeight=Math.min(maxHeight,innerHeight-top-edge);
   y=clamp(y,top,innerHeight-maxHeight-edge);
   Object.assign(referenceDialog.style,{left:x+'px',top:y+'px',width:panelWidth+'px',maxHeight:maxHeight+'px'});
+  referencePagePosition={left:x+scrollX,top:y+scrollY};
 }
-window.addEventListener('scroll',positionReference,{passive:true});
+function followReferencePagePosition(){
+  if(!referencePagePosition||!referenceDialog.matches(':popover-open'))return;
+  referenceDialog.style.left=(referencePagePosition.left-scrollX)+'px';
+  referenceDialog.style.top=(referencePagePosition.top-scrollY)+'px';
+}
+window.addEventListener('scroll',followReferencePagePosition,{passive:true});
 window.addEventListener('resize',positionReference,{passive:true});
+referenceDialog.addEventListener('toggle',event=>{
+  if(!event.target.matches('details')||!referenceDialog.matches(':popover-open'))return;
+  const width=fitReferenceWidth();
+  const left=Math.max(12,Math.min(parseFloat(referenceDialog.style.left),innerWidth-width-12));
+  referenceDialog.style.left=left+'px';
+  if(referencePagePosition)referencePagePosition.left=left+scrollX;
+},true);
 const referenceHandle=referenceDialog.querySelector('.reference-dialog-head');
 let referenceDrag=null;
 referenceHandle.addEventListener('pointerdown',event=>{
@@ -690,11 +750,17 @@ referenceHandle.addEventListener('pointermove',event=>{
   const rect=referenceDialog.getBoundingClientRect();
   referenceDialog.style.left=Math.max(8,Math.min(innerWidth-rect.width-8,referenceDrag.left+event.clientX-referenceDrag.x))+'px';
   referenceDialog.style.top=Math.max(8,Math.min(innerHeight-rect.height-8,referenceDrag.top+event.clientY-referenceDrag.y))+'px';
+  referencePagePosition={left:parseFloat(referenceDialog.style.left)+scrollX,top:parseFloat(referenceDialog.style.top)+scrollY};
 });
 for(const name of ['pointerup','pointercancel','lostpointercapture'])referenceHandle.addEventListener(name,()=>referenceDrag=null);
 function referenceContent(id){
+  if(exampleContentCache.has(id))return exampleContentCache.get(id);
+  for(const entry of API.functions){
+    const param=entry.params.find(item=>/^function\b/.test(item.type)&&id==='callback-guide-'+entry.owner+'-'+entry.name+'-'+item.name);
+    if(param)return {title:entry.name+' · '+(param.name==='callback'?'Callback':param.name+' callback'),html:callbackGuide(entry)};
+  }
   const example=API.functions.find(entry=>id==='example-'+entry.owner+'-'+entry.name);
-  if(example)return {title:example.owner+'.'+example.name+' · Lua example',html:'<div class="method-description">'+codeBlock(methodExample(example),example)+'</div>'};
+  if(example){const content={title:example.owner+'.'+example.name+' · Lua example',html:'<div class="method-description">'+codeBlock(methodExample(example),example)+'</div>'};exampleContentCache.set(id,content);return content;}
   const fn=API.functions.find(item=>id===item.owner+'-'+item.name);
   if(fn)return {title:fn.signature,html:card(fn)};
   const type=API.types.find(item=>id==='type-'+item.name);
@@ -720,12 +786,43 @@ function showReference(id,remember=true){
   positionReference();
   body.scrollTop=0;
   updateEasing(referenceDialog);
+  if(remember){
+    const container=referenceOpener?.closest('[id]');
+    history.pushState({...history.state,mililuaReference:{id,trail:[...referenceHistory],sourceId:container?.id,sourceHref:referenceOpener?.getAttribute('href'),click:referenceClick,position:referencePagePosition}},'',location.href);
+  }
   return true;
 }
 referenceDialog.querySelector('.reference-close').addEventListener('click',()=>referenceDialog.hidePopover());
-referenceDialog.querySelector('.reference-back').addEventListener('click',()=>{referenceHistory.pop();showReference(referenceHistory.at(-1),false)});
+referenceDialog.querySelector('.reference-back').addEventListener('click',()=>history.back());
+window.addEventListener('popstate',event=>{
+  cancelPendingMethod();
+  const state=event.state?.mililuaReference;
+  if(!state){if(referenceDialog.matches(':popover-open'))referenceDialog.hidePopover();return;}
+  const root=state.sourceId?document.getElementById(state.sourceId):document;
+  const source=[...(root||document).querySelectorAll('a[data-api-reference]')].find(link=>link.getAttribute('href')===state.sourceHref);
+  if(source)referenceOpener=source;
+  referenceClick=state.click;referenceDragged=false;referenceHistory=[...state.trail];
+  showReference(state.id,false);
+  if(state.position){referencePagePosition=state.position;followReferencePagePosition();}
+});
 referenceDialog.addEventListener('toggle',event=>{if(event.newState==='closed'){referenceHistory=[];referenceOpener?.focus({preventScroll:true})}});
-let methodClickTimer=0,copyToastTimer=0;
+let copyToastTimer=0,methodOpenTimer=0,pendingMethod=null;
+const methodOpenDelay=300;
+function cancelPendingMethod(){
+  clearTimeout(methodOpenTimer);
+  if(pendingMethod){pendingMethod.classList.remove('example-pending');pendingMethod.removeAttribute('aria-busy');}
+  pendingMethod=null;
+}
+function queueMethodExample(link,event){
+  cancelPendingMethod();pendingMethod=link;
+  link.classList.add('example-pending');link.setAttribute('aria-busy','true');
+  requestAnimationFrame(()=>referenceContent(decodeURIComponent(link.hash.slice(1))));
+  methodOpenTimer=setTimeout(()=>{
+    const shouldOpen=link.isConnected&&pendingMethod===link;
+    cancelPendingMethod();if(shouldOpen)openReferenceLink(link,event);
+  },methodOpenDelay);
+}
+document.addEventListener('keydown',event=>{if(event.key==='Escape')cancelPendingMethod()});
 const copyToast=document.createElement('div');
 copyToast.className='copy-toast';copyToast.setAttribute('popover','manual');copyToast.setAttribute('role','status');copyToast.setAttribute('aria-live','polite');document.body.appendChild(copyToast);
 async function copyMethodName(name,source){
@@ -753,10 +850,11 @@ function openReferenceLink(link,event){
 }
 document.addEventListener('dblclick',event=>{
   const method=event.target.closest('.method-example,.lua-featured-method');if(!method)return;
-  event.preventDefault();clearTimeout(methodClickTimer);
+  event.preventDefault();
+  cancelPendingMethod();
   if(method.matches('.method-example')&&referenceOpener===method&&referenceDialog.matches(':popover-open'))referenceDialog.hidePopover();
   getSelection()?.removeAllRanges();copyMethodName(method.textContent.trim(),method);
 });
-document.addEventListener("click",event=>{const link=event.target.closest('a[href^="#"]');if(!link)return;const hash=link.getAttribute("href");if(!hash||hash==="#")return;if(link.hasAttribute('data-api-reference')){event.preventDefault();if(link.matches('.method-example')&&event.detail){clearTimeout(methodClickTimer);if(event.detail===1)methodClickTimer=setTimeout(()=>openReferenceLink(link,event),360);}else openReferenceLink(link,event);return;}const target=document.getElementById(decodeURIComponent(hash.slice(1)));if(!target)return;event.preventDefault();fastJump(target,hash)});
+document.addEventListener("click",event=>{const link=event.target.closest('a[href^="#"]');if(!link){cancelPendingMethod();return;}const hash=link.getAttribute("href");if(!hash||hash==="#")return;if(link.hasAttribute('data-api-reference')){event.preventDefault();if(link.matches('.method-example')&&event.detail){if(event.detail===1)queueMethodExample(link,event);else cancelPendingMethod();}else{cancelPendingMethod();openReferenceLink(link,event);}return;}cancelPendingMethod();const target=document.getElementById(decodeURIComponent(hash.slice(1)));if(!target)return;event.preventDefault();fastJump(target,hash)});
 const theme=document.querySelector("#theme-toggle");const saved=localStorage.getItem("mililua-theme");const dark=saved?saved==="dark":matchMedia("(prefers-color-scheme:dark)").matches;document.documentElement.dataset.theme=dark?"dark":"light";function themeLabel(){const isDark=document.documentElement.dataset.theme==="dark";theme.textContent=isDark?"☀":"☾";theme.setAttribute("aria-label","Switch to "+(isDark?"light":"dark")+" mode")}themeLabel();theme.addEventListener("click",()=>{document.documentElement.dataset.theme=document.documentElement.dataset.theme==="dark"?"light":"dark";localStorage.setItem("mililua-theme",document.documentElement.dataset.theme);themeLabel()});
 render();
