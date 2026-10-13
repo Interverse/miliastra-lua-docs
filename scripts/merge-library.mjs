@@ -3,7 +3,7 @@ import path from "node:path";
 
 // Current declarations override older declarations, never confirmed runtime evidence.
 export function mergeLibrary(root, data) {
-  const directory = path.join(root, "References/mililua/library");
+  const directory = path.join(root, "References/miliastra-lua-api/library");
   const walk = (dir) => fs.readdirSync(dir, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name)).flatMap(entry => entry.isDirectory() ? walk(path.join(dir, entry.name)) : entry.name.endsWith(".lua") ? [path.join(dir, entry.name)] : []);
   const upsert = (items, value, key) => {
     const index = items.findIndex(item => key(item) === key(value));
@@ -19,11 +19,13 @@ export function mergeLibrary(root, data) {
     const source = path.relative(root, file).replaceAll("\\", "/");
     const lines = fs.readFileSync(file, "utf8").replace(/\r/g, "").split("\n");
     let comments = [];
+    let currentClass = null;
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i].trim();
       const cls = line.match(/^---@class\s+(\S+)(?:\s*:\s*(.+))?/);
       if (cls) {
         const name = cls[1];
+        currentClass = name;
         const fields = [];
         while (/^---@field\s/.test(lines[i + 1]?.trim() || "")) fields.push(named(lines[++i].trim().replace(/^---@field\s+/, "")));
         upsert(data.types, { name, parent: cls[2] || null, description: doc(comments), source }, item => item.name);
@@ -31,6 +33,15 @@ export function mergeLibrary(root, data) {
           const previous = data.enums.find(item => item.name === name);
           upsert(data.enums, { name, values: [...new Set([...fields.map(field => field.name), ...(previous?.values || [])])], description: doc(comments) || previous?.description || "", source }, item => item.name);
         } else for (const field of fields) upsert(data.properties, { owner: name === "Script" ? "script" : name, ...field, source }, item => `${item.owner}.${item.name}`);
+        comments = [];
+        continue;
+      }
+      // LuaCATS allows documentation blocks between fields of the same class.
+      // TweenTarget uses this layout instead of contiguous field annotations.
+      const field = line.match(/^---@field\s+(.+)/);
+      if (field && currentClass) {
+        const value = named(field[1]);
+        upsert(data.properties, { owner: currentClass === "Script" ? "script" : currentClass, ...value, description: value.description || doc(comments), source }, item => `${item.owner}.${item.name}`);
         comments = [];
         continue;
       }

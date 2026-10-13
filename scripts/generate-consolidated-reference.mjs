@@ -16,7 +16,7 @@ write(
   "",
   `API document ${api.version} · Game ${api.gameVersion} · Consolidated ${api.generatedAt}`,
   "",
-  "This is the canonical single-file reference for generating and reviewing MiliLua scripts. It combines the official Chinese Client Control API (translated using its official English terminology), the 7.1 declarations in References/mililua/library, signature inventory, runtime findings, and confirmed demos. Prefer demo-verified behavior when sources disagree.",
+  "This is the canonical single-file reference for generating and reviewing MiliLua scripts. It combines the official Chinese Client Control API (translated using its official English terminology), the 7.1 declarations in References/miliastra-lua-api/library, signature inventory, runtime findings, and confirmed demos. Prefer demo-verified behavior when sources disagree. New library descriptions are documented claims, not newly verified runtime tests, even on methods already exercised by demos.",
   "",
   "## Contents",
   "",
@@ -88,7 +88,7 @@ write(
   "",
   "### Repeating work",
   "",
-  "Schedule the next empty Tween from the completion callback. Retain each Tween and call `Kill(false)` during cleanup. The confirmed `tween_ontick_counter.lua` pattern uses this to simulate an OnTick-style callback; its interval is controlled by `TICK_INTERVAL` and should be treated as scheduler-timed rather than a hard real-time guarantee. Hidden controls continue running attached scripts and Tween callbacks.",
+  "Prefer `OnUpdate(deltaTime)` and an elapsed-seconds accumulator for new timers, repeated work, and periodic signals. Enable updates with `script:EnableUpdate(true)` in `OnStart` and disable them during cleanup. A requested 0.1-second check is an accumulator threshold, not the frame callback frequency. Batch independent expired timers into one signal and choose catch-up behavior explicitly. The confirmed `tween_ontick_counter.lua` demo instead chains empty Tweens; retain and kill those Tweens when maintaining that demo. Hidden controls continue running attached scripts and Tween callbacks.",
   "",
   "### Module loading and host-aware types",
   "",
@@ -179,7 +179,17 @@ write(
   "",
   "### 7.1 Grid Scroller update",
   "",
-  "`itemPrefabIndex` replaces `itemPrefabId`. `scrollProgress` is read/write, Tweenable, and clamps to 0-1. `GetItemSize()` returns width and height, while `GetItemSpacing()` returns horizontal and vertical spacing. The new package conflicts on `GetPadding()` ordering: the update notes say left/right/top/bottom, but the bundled declaration says top/bottom/left/right. Treat the padding component order as incomplete until runtime verification resolves it.",
+  "`itemPrefabIndex` replaces `itemPrefabId`. `scrollProgress` is read/write and Tweenable; the new library documents values outside 0-1 during overscroll, so do not assume reads always stay normalized. `GetItemSize()` returns width and height, while `GetItemSpacing()` returns horizontal and vertical spacing. `GetItemIndex()` returns -1 for unmanaged controls. `RefreshItems()` destroys existing items, instantiates replacements, and triggers their lifecycle callbacks. The new package conflicts on `GetPadding()` ordering: the update notes say left/right/top/bottom, but the bundled declaration says top/bottom/left/right. Treat the padding component order as incomplete until runtime verification resolves it.",
+  "",
+  "### New miliastra-lua-api declaration details",
+  "",
+  "These are documented library claims, not new local runtime confirmations. Custom Variable handlers fire even with Trigger Event disabled, including list/dictionary mutations, clearing already-empty collections, and nested structure changes. Variables must exist in the entity's Custom Variable component; reread the value because callbacks contain no before/after values.",
+  "",
+  "For split anchors, the anchor point is interpolated between anchorMin and anchorMax using the control's pivot percentage on that axis. Anchored position is the pivot offset from that point; sizeDelta is the size offset from anchor bounds. Cursor coordinates use the canvas bottom-left origin; controller canvas dimensions deduct safe-area padding. Controller stick axes range from -1 to 1. touchId is documented as -1 for cursor clicks and 0-4 for mobile gestures.",
+  "",
+  "Sibling reordering throws before OnStart or during OnDestroy. The library says higher indices draw on top, while the confirmed pixel demo reports earlier-created siblings above later-created siblings; retain the conflict pending a focused runtime test. The library also retains ambiguous return annotations on sibling setters. Duplicate child names/paths resolve by descending sibling index in the library. Client Controls are recreated during loading screens, so reacquire native references after reload.",
+  "",
+  "Numeric signal-list adders reject non-sequence fields and nonnumeric values. Typed LuaLS signal annotations affect editor tooling, not runtime payload conversion. Global-script OnDestroy may not execute before client disconnect; avoid relying on it for guaranteed final server messages. TweenSequence loop counts can only be set in Initial state, play at least once, and loop indefinitely for negative values.",
   "",
   "### Script lifecycle",
   "",
@@ -195,7 +205,7 @@ write(
   "- Tested native userdata returned no useful metatable through `getmetatable`.",
   "- `typeof` exposes useful host-aware type names, but broader debug reflection functions were unavailable.",
   "- No confirmed direct API for local player/character access, world or scene lookup, non-UI transforms, camera, physics, or raycasts.",
-  "- Script Variable Manager access, full signal payload serialization, additional control-specific methods, and controller/mobile behavior remain incomplete.",
+  "- `script:GetParam` documents mapped Script Variable reads; broader Script Variable Manager access, full signal payload serialization, and controller/mobile runtime verification remain incomplete.",
   "- The official Grid Scroller callback shape, content-length direction, and scroll enum members are documented; `GetPadding()` component order is incomplete because the 2026-08-25 official sources conflict.",
   "- The 7.1 declaration library reports no new direct world, entity, or physics API and no expansion of `game` or `ServerSignal`.",
   "- Use only enum members present in the official/structured inventory; do not infer aliases from display labels or physical-key descriptions.",
@@ -210,6 +220,8 @@ for (const demo of demos) {
 }
 
 const destination = path.join(root, "References", "MiliLua_API_Consolidated.md");
+write("## Local guides", "");
+for (const guide of api.guides || []) write(`### ${guide.title}`, "", guide.description, "", guide.attribution, "");
 fs.writeFileSync(destination, `${out.join("\n")}\n`);
 console.log(`Wrote ${destination} (${out.length} blocks).`);
 

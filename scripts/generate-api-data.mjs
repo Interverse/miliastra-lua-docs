@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { mergeLibrary } from "./merge-library.mjs";
+import { localizeDocs } from "./localize-docs.mjs";
 
 const root = process.cwd();
 const declaration = fs.readFileSync(path.join(root, "References", "mw_api.d.lua"), "utf8").replace(/\r/g, "");
@@ -124,10 +125,25 @@ for (const property of [["ClientUIImageControl", "imageSource", "Enum.ImageSourc
   if (!properties.some((item) => item.owner === property[0] && item.name === property[1])) properties.push({ owner: property[0], name: property[1], type: property[2], description: property[0] === "ClientUITextBoxControl" && property[1] === "text" ? "Readable and writable text value; confirmed demos append text through a repeating empty-Tween scheduler." : "Observed in runtime testing." });
 }
 mergeLibrary(root, { functions, properties, types, enums });
+// Keep conflicting source claims explicit rather than silently upgrading them.
+const padding = functions.find(fn => fn.owner === "ClientUIGridScrollerControl" && fn.name === "GetPadding");
+padding.status = "uncertain";
+padding.note = "The new library declares top/bottom/left/right; official 2026-08-25 update notes declare left/right/top/bottom. Component order remains unconfirmed.";
+for (const name of ["GetSiblingIndex", "SetSiblingIndex"]) {
+  const fn = functions.find(fn => fn.owner === "ClientUIBaseControl" && fn.name === name);
+  fn.status = "uncertain";
+  fn.note = "The new library says higher numeric indices render on top and the editor lists children in descending index order. The confirmed pixel demo reports earlier-created siblings above later-created siblings. Keep this conflict unresolved pending a targeted runtime test; do not infer stacking solely from numeric index.";
+}
+for (const name of ["SetSiblingIndex", "SetAsFirstSibling", "SetAsLastSibling"]) {
+  const fn = functions.find(fn => fn.owner === "ClientUIBaseControl" && fn.name === name);
+  fn.status = "uncertain";
+  fn.note = [fn.note, "The library describes false for root containers but retains an 'Always true?' return annotation. Return behavior remains incomplete; the documented lifecycle restriction is before OnStart and during OnDestroy."].filter(Boolean).join(" ");
+}
 const order = ["Lua", "Lifecycle", "script", "game", "Color", "ServerSignal", "ClientUIBaseControl", "ClientUICursorEventAreaControl", "ClientUIPresetButtonControl", "ClientUIAnimationControl", "ClientUIGridScrollerControl", "ClientUIImageControl", "CursorEventData", "Tween", "TweenSequence"];
 functions.sort((a, b) => (order.indexOf(a.owner) === -1 ? 999 : order.indexOf(a.owner)) - (order.indexOf(b.owner) === -1 ? 999 : order.indexOf(b.owner)) || a.name.localeCompare(b.name));
-const data = { version: "7.1", gameVersion: "7.1", generatedAt: "2026-09-23", sourceDocument: "References/mililua/library (7.1), supplemented by prior declarations and confirmed runtime demos", functions, properties, types, enums };
+const data = { version: "7.1", gameVersion: "7.1", generatedAt: "2026-10-12", sourceDocument: "References/miliastra-lua-api/library (7.1), supplemented by prior declarations and confirmed runtime demos; unresolved source conflicts are retained in notes", functions, properties, types, enums };
 const docsDir = path.join(root, "Docs");
+localizeDocs(data);
 fs.mkdirSync(docsDir, { recursive: true });
 fs.writeFileSync(path.join(docsDir, "MiliLua_API_Data.json"), `${JSON.stringify(data, null, 2)}\n`);
 console.log(`Generated ${functions.length} functions, ${properties.length} properties, ${types.length} types, and ${enums.length} enum groups.`);

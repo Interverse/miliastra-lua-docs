@@ -61,6 +61,8 @@ for (const item of api.enums) {
   write("");
 }
 
+write("## Local guides", "");
+for (const guide of api.guides || []) write(`### ${guide.title}`, "", guide.description, "", guide.attribution, "");
 fs.mkdirSync(docsDir, { recursive: true });
 fs.writeFileSync(destination, `${out.join("\n")}\n`);
 console.log(`Wrote ${destination} (${out.length} blocks).`);

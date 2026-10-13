@@ -126,3 +126,22 @@ html[data-theme="dark"] .enum-values code{background:#252a33;color:#d8deea;borde
   .function-card{scroll-margin-top:calc(80 * var(--ui))}
 }
 .api-reference{color:var(--teal);text-decoration:underline;text-underline-offset:3px}.api-reference:hover{color:var(--accent)}.enum-card,.property-card{scroll-margin-top:calc(var(--header,64px) + 16px)}
+
+/* Progressive disclosure keeps full documentation available without giant cards. */
+.sidebar a.active-section,html[data-theme="dark"] .sidebar a.active-section{background:color-mix(in srgb,var(--accent) 12%,var(--paper-2));color:var(--accent);box-shadow:inset 3px 0 var(--accent);font-weight:650}
+.sidebar a.active-section b{color:var(--accent)}
+.disclosure-body{max-height:26rem;overflow:auto;overscroll-behavior:contain;padding:10px 12px 4px 0;scrollbar-gutter:stable}
+.disclosure-body:focus-visible{outline:2px solid var(--teal)}
+.method-note.doc-disclosure{padding:9px 12px;border-top:0;border-radius:4px}
+.method-note summary{font-size:12px}
+.method-note p,.type-description p,.property-row p{margin:0 0 6px}
+.property-row>div{min-width:0;overflow-wrap:anywhere;font-size:13px}
+.property-row{scroll-margin-top:calc(var(--header,64px) + 20px)}
+.type-description pre,.property-row pre{white-space:pre-wrap;overflow-wrap:anywhere}
+.guide-attribution{font-size:12px;color:var(--muted);margin-top:12px!important}
+.ease-label{display:flex;align-items:center;gap:12px;font-size:13px}
+.ease-label select{padding:6px 10px;color:var(--ink);background:var(--paper-2);border:1px solid var(--line);border-radius:4px}
+#ease-graph{display:block;width:min(100%,480px);margin:14px 0;color:var(--muted);font-size:11px;overflow:visible}
+.ease-axis{fill:none;stroke:var(--line)}.ease-baseline{stroke:var(--muted);stroke-dasharray:4 4;fill:none;opacity:.5}
+.ease-curve{stroke:var(--teal);stroke-width:2.5;fill:none}#ease-graph text{fill:currentColor}
+@media(max-width:640px){.disclosure-body{max-height:20rem}}
