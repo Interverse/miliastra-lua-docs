@@ -1,7 +1,7 @@
 // Share links are self-contained. Version 1 numeric IDs are append-only.
 (()=>{
   const ids=window.MiliShareIds,index=new Map(ids.map((id,i)=>[id,i]));
-  const selected=new Set();let selecting=false,shared=[],feedbackTimer,collectionSignature=null,selectionWidthAnimation;
+  const selected=new Set();let selecting=false,shared=[],feedbackTimer,collectionSignature=null,selectionWidthAnimation,selectionControlLanguage;
   const keys=['Copy link','Copy search link','Copy page link','Select examples','Select results','Clear','Done','selected','Shared examples','Close collection','Add to set','Remove from set','Link copied','Could not copy link','Invalid share link'];
   const rows={
     zhs:'复制链接|复制搜索链接|复制页面链接|选择示例|选择搜索结果|清空|完成|已选|共享示例|关闭集合|加入集合|移出集合|链接已复制|无法复制链接|共享链接无效',
@@ -140,6 +140,7 @@
     collection.querySelectorAll('.shared-content').forEach(root=>updateEasing(root));MiliLocale.applyDOM(collection);
   }
   function renderControls(){
+    if(selectionControlLanguage!==MiliLocale.code){tools.style.removeProperty('--selection-main-width');selectionControlLanguage=MiliLocale.code;}
     const modeChanged=document.body.classList.contains('selection-editing')!==selecting;
     const previousOptions=modeChanged&&!selecting?tools.querySelector('.share-options')?.cloneNode(true):null;
     const previousOptionsWidth=tools.querySelector('.share-options')?.getBoundingClientRect().width;
