@@ -190,7 +190,7 @@ write(
   "",
   "Sibling reordering throws before OnStart or during OnDestroy. The library says higher indices draw on top, while the confirmed pixel demo reports earlier-created siblings above later-created siblings; retain the conflict pending a focused runtime test. The library also retains ambiguous return annotations on sibling setters. Duplicate child names/paths resolve by descending sibling index in the library. Client Controls are recreated during loading screens, so reacquire native references after reload.",
   "",
-  "Numeric signal-list adders reject non-sequence fields and nonnumeric values. Typed LuaLS signal annotations affect editor tooling, not runtime payload conversion. Global-script OnDestroy may not execute before client disconnect; avoid relying on it for guaranteed final server messages. TweenSequence loop counts can only be set in Initial state, play at least once, and loop indefinitely for negative values.",
+  "Numeric signal-list adders reject non-sequence fields and nonnumeric values. Global-script OnDestroy may not execute before client disconnect; avoid relying on it for guaranteed final server messages. TweenSequence loop counts can only be set in Initial state, play at least once, and loop indefinitely for negative values.",
   "",
   "### Script lifecycle",
   "",

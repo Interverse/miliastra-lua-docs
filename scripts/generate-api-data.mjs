@@ -126,7 +126,11 @@ for (const property of [["ClientUIImageControl", "imageSource", "Enum.ImageSourc
   if (!properties.some((item) => item.owner === property[0] && item.name === property[1])) properties.push({ owner: property[0], name: property[1], type: property[2], description: property[0] === "ClientUITextBoxControl" && property[1] === "text" ? "Readable and writable text value; confirmed demos append text through a repeating empty-Tween scheduler." : "Observed in runtime testing." });
 }
 mergeLibrary(root, { functions, properties, types, enums });
+const vector3 = types.find(type => type.name === "Vector3");
+if (vector3) vector3.description = "Represent a 3D vector in Lua as a table with named numeric fields: x, y, and z. Omitted components default to 0.\n\n```lua\nlocal position = { x = 16, y = 0.5, z = -6 }\nlocal positions = {\n    { x = 16, y = 0.5, z = -6 },\n    { x = 18, y = 0.5, z = -6 }\n}\n\nlocal signal = game.ServerSignal(\"Positions\")\nsignal:AddVector3List(positions)\nsignal:SendSignal()\n```\n\nUse named fields, rather than a positional table such as {16, 0.5, -6}. Vector3 describes this table shape; no Vector3() constructor is provided by the documented API.";
 const colorValue = types.find(type => type.name === "ColorValue");
+const tweenTarget = types.find(type => type.name === "TweenTarget");
+if (tweenTarget) tweenTarget.description = "A Lua table of tweenable properties and their target values, passed to game.Tween.\n\n```lua\nlocal targetValues = { anchoredPositionX = 100, anchoredPositionY = 50 }\nlocal tween = game.Tween(script.object, targetValues, 0.5)\ntween:Play()\n```\n\nUse properties supported by the target control. Target values are fixed when the Tween is created.";
 if (colorValue) colorValue.description += "\n\nRetrieve the red, green, blue, and alpha components with [Color.ToRGBA()](lua://Color.ToRGBA).";
 // Keep conflicting source claims explicit rather than silently upgrading them.
 const padding = functions.find(fn => fn.owner === "ClientUIGridScrollerControl" && fn.name === "GetPadding");

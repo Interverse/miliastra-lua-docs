@@ -188,11 +188,62 @@ html[data-theme="dark"] .enum-body .enum-values code{background:#252a33;color:#d
 .optional-type{color:var(--muted)}
 .type-alternatives>.collection-type{border:0;padding:0 0 4px;font:500 12px/1.4 system-ui,sans-serif;color:var(--muted)}
 .type-or{color:var(--muted);font:italic 12px/1.5 system-ui,sans-serif}
+
+/* Distinguish executable examples from surrounding documentation. */
+.method-description pre,.type-description pre,.disclosure-body pre{
+  position:relative;margin:14px 0;padding:16px 18px;
+  background:#f0f1f3;
+  border:1px solid #d8dce2;border-radius:5px;
+  color:var(--ink);font:13px/1.75 "Cascadia Code",Consolas,monospace;
+  white-space:pre-wrap;overflow-wrap:anywhere;
+}
+.method-description pre code,.type-description pre code,.disclosure-body pre code{
+  display:block;background:none;border:0;padding:0;border-radius:0;font:inherit;color:inherit;
+}
+html[data-theme="dark"] .method-description pre,html[data-theme="dark"] .type-description pre,html[data-theme="dark"] .disclosure-body pre{background:#161b22;border-color:#30363d}
+.code-example{margin:14px 0;border:1px solid #d8dce2;border-radius:5px;overflow:hidden;background:#f0f1f3}
+.code-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:7px 12px;border-bottom:1px solid #d8dce2;color:var(--muted);font:12px/1.5 system-ui,sans-serif}
+.code-example .copy-button{padding:4px 9px;background:transparent}
+.method-description .code-example pre,.type-description .code-example pre,.disclosure-body .code-example pre{margin:0;border:0;border-radius:0;padding:14px 16px}
+html[data-theme="dark"] .code-example{background:#161b22;border-color:#30363d}
+html[data-theme="dark"] .code-toolbar{border-color:#30363d}
+.language-lua .lua-keyword{color:#87439a;font-weight:600}
+.language-lua .lua-string{color:#28633d}
+.language-lua .lua-comment{color:#66717d;font-style:italic}
+.language-lua .lua-number,.language-lua .lua-literal{color:#9b4d18}
+.language-lua .lua-call{color:#255f94}
+html[data-theme="dark"] .language-lua .lua-keyword{color:#c792ea}
+html[data-theme="dark"] .language-lua .lua-string{color:#a9ce91}
+html[data-theme="dark"] .language-lua .lua-comment{color:#8b98a8}
+html[data-theme="dark"] .language-lua .lua-number,html[data-theme="dark"] .language-lua .lua-literal{color:#f0b47d}
+html[data-theme="dark"] .language-lua .lua-call{color:#82b8e8}
+.language-lua .lua-featured-method{color:#00695c;font-weight:800;text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:4px}
+html[data-theme="dark"] .language-lua .lua-featured-method{color:#75e2cc}
+.function-actions{display:flex;align-items:center;gap:8px}
+.example-button{display:inline-flex;align-items:center;gap:5px;padding:4px 8px;border:1px solid var(--line);border-radius:4px;color:var(--muted);font:12px/1.5 system-ui,sans-serif;text-decoration:none;white-space:nowrap}
+.example-button:hover,.example-button:focus-visible{color:var(--teal);border-color:var(--teal);background:color-mix(in srgb,var(--teal) 5%,var(--paper-2))}
+.example-button>span{font-family:Consolas,monospace;font-size:11px}
+.method-example{color:var(--ink);text-decoration-line:underline;text-decoration-style:dotted;text-decoration-color:color-mix(in srgb,var(--teal) 65%,transparent);text-underline-offset:4px;cursor:pointer;border-radius:2px}
+.method-example:hover,.method-example:focus-visible{color:var(--teal);text-decoration-style:solid;text-decoration-color:var(--teal)}
+.method-example:focus-visible{outline:2px solid var(--teal);outline-offset:4px}
+.example-hint{margin:10px 0 0;color:var(--muted);font-size:12px}
+.function-head .function-actions{margin-left:0}
+:root body .function-head>code{flex:0 1 auto}
+.function-head .copy-button{margin-left:4px}
+.function-head .function-actions{flex-basis:auto;justify-content:flex-start;gap:8px;margin-top:0}
+.function-head .example-button{padding:3px 7px}
+.method-description .code-example pre,.type-description .code-example pre,.disclosure-body .code-example pre{white-space:pre;overflow-x:auto;overflow-wrap:normal;word-break:normal;max-width:100%;tab-size:4}
+.code-example pre code{white-space:inherit;overflow-wrap:normal;word-break:normal;min-width:max-content}
+.code-example{width:fit-content;min-width:min(100%,320px);max-width:100%}
+.reference-dialog .code-example{width:100%;min-width:0}
 .reference-dialog{width:min(800px,calc(100vw - 32px));max-width:none;max-height:calc(100dvh - 40px);padding:0;border:1px solid var(--line);border-radius:10px;background:var(--paper-2);color:var(--ink);box-shadow:0 20px 70px #0004;overflow:hidden}
 .reference-dialog{position:fixed;inset:auto;margin:0}
 .reference-dialog:popover-open{display:flex;flex-direction:column}
 .reference-dialog::backdrop{background:transparent;pointer-events:none}
 .reference-dialog-head{display:flex;align-items:center;gap:12px;padding:15px 18px;background:color-mix(in srgb,var(--paper) 65%,var(--paper-2));border-bottom:1px solid var(--line);flex:none}
+.reference-dialog-head{cursor:grab;user-select:none;touch-action:none}
+.reference-dialog-head:active{cursor:grabbing}
+.reference-dialog-head button{cursor:pointer}
 .reference-dialog-head h2{font:700 14px/1.6 "Cascadia Code",Consolas,monospace;margin:0;flex:1;min-width:0;overflow-wrap:anywhere}
 .reference-dialog-head button{border:1px solid var(--line);border-radius:5px;background:var(--paper-2);color:var(--ink);cursor:pointer;padding:5px 10px;font-size:12px}
 .reference-dialog-head .reference-close{font-size:22px;line-height:1;padding:5px 9px}
