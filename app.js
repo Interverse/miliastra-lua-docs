@@ -722,6 +722,38 @@ function showReference(id,remember=true){
 referenceDialog.querySelector('.reference-close').addEventListener('click',()=>referenceDialog.hidePopover());
 referenceDialog.querySelector('.reference-back').addEventListener('click',()=>{referenceHistory.pop();showReference(referenceHistory.at(-1),false)});
 referenceDialog.addEventListener('toggle',event=>{if(event.newState==='closed'){referenceHistory=[];referenceOpener?.focus({preventScroll:true})}});
-document.addEventListener("click",event=>{const link=event.target.closest('a[href^="#"]');if(!link)return;const hash=link.getAttribute("href");if(!hash||hash==="#")return;if(link.hasAttribute('data-api-reference')){event.preventDefault();if(!referenceDialog.contains(link)){referenceOpener=link;referenceHistory=[];referenceDragged=false;const rect=link.getBoundingClientRect();referenceClick=event.detail?{x:event.clientX-rect.left,y:event.clientY-rect.top}:null;}showReference(decodeURIComponent(hash.slice(1)));return;}const target=document.getElementById(decodeURIComponent(hash.slice(1)));if(!target)return;event.preventDefault();fastJump(target,hash)});
+let methodClickTimer=0,copyToastTimer=0;
+const copyToast=document.createElement('div');
+copyToast.className='copy-toast';copyToast.setAttribute('popover','manual');copyToast.setAttribute('role','status');copyToast.setAttribute('aria-live','polite');document.body.appendChild(copyToast);
+async function copyMethodName(name,source){
+  try{await navigator.clipboard.writeText(name)}catch{
+    const area=document.createElement('textarea');area.value=name;area.style.cssText='position:fixed;opacity:0';document.body.appendChild(area);area.select();
+    const copied=document.execCommand('copy');area.remove();if(!copied)return;
+  }
+  copyToast.textContent='Copied method name: '+name;
+  if(copyToast.matches(':popover-open'))copyToast.hidePopover();
+  copyToast.classList.remove('visible');copyToast.showPopover();
+  if(source?.isConnected){
+    const anchor=source.getBoundingClientRect(),rect=copyToast.getBoundingClientRect();
+    const edge=8,gap=9;
+    const left=Math.max(edge,Math.min(innerWidth-rect.width-edge,anchor.left+(anchor.width-rect.width)/2));
+    const above=anchor.top-gap-rect.height;
+    const top=above>=edge?above:Math.min(innerHeight-rect.height-edge,anchor.bottom+gap);
+    Object.assign(copyToast.style,{left:left+'px',top:top+'px',bottom:'auto'});
+  }
+  requestAnimationFrame(()=>copyToast.classList.add('visible'));clearTimeout(copyToastTimer);
+  copyToastTimer=setTimeout(()=>copyToast.classList.remove('visible'),1000);
+}
+function openReferenceLink(link,event){
+  if(!referenceDialog.contains(link)){referenceOpener=link;referenceHistory=[];referenceDragged=false;const rect=link.getBoundingClientRect();referenceClick=event.detail?{x:event.clientX-rect.left,y:event.clientY-rect.top}:null;}
+  showReference(decodeURIComponent(link.hash.slice(1)));
+}
+document.addEventListener('dblclick',event=>{
+  const method=event.target.closest('.method-example,.lua-featured-method');if(!method)return;
+  event.preventDefault();clearTimeout(methodClickTimer);
+  if(method.matches('.method-example')&&referenceOpener===method&&referenceDialog.matches(':popover-open'))referenceDialog.hidePopover();
+  getSelection()?.removeAllRanges();copyMethodName(method.textContent.trim(),method);
+});
+document.addEventListener("click",event=>{const link=event.target.closest('a[href^="#"]');if(!link)return;const hash=link.getAttribute("href");if(!hash||hash==="#")return;if(link.hasAttribute('data-api-reference')){event.preventDefault();if(link.matches('.method-example')&&event.detail){clearTimeout(methodClickTimer);if(event.detail===1)methodClickTimer=setTimeout(()=>openReferenceLink(link,event),360);}else openReferenceLink(link,event);return;}const target=document.getElementById(decodeURIComponent(hash.slice(1)));if(!target)return;event.preventDefault();fastJump(target,hash)});
 const theme=document.querySelector("#theme-toggle");const saved=localStorage.getItem("mililua-theme");const dark=saved?saved==="dark":matchMedia("(prefers-color-scheme:dark)").matches;document.documentElement.dataset.theme=dark?"dark":"light";function themeLabel(){const isDark=document.documentElement.dataset.theme==="dark";theme.textContent=isDark?"☀":"☾";theme.setAttribute("aria-label","Switch to "+(isDark?"light":"dark")+" mode")}themeLabel();theme.addEventListener("click",()=>{document.documentElement.dataset.theme=document.documentElement.dataset.theme==="dark"?"light":"dark";localStorage.setItem("mililua-theme",document.documentElement.dataset.theme);themeLabel()});
 render();

@@ -227,6 +227,12 @@ html[data-theme="dark"] .language-lua .lua-featured-method{color:#75e2cc}
 .method-example:hover,.method-example:focus-visible{color:var(--teal);text-decoration-style:solid;text-decoration-color:var(--teal)}
 .method-example:focus-visible{outline:2px solid var(--teal);outline-offset:4px}
 .example-hint{margin:10px 0 0;color:var(--muted);font-size:12px}
+.copy-toast{position:fixed;bottom:24px;left:50%;transform:translate(-50%,10px);opacity:0;pointer-events:none;z-index:1000;padding:10px 16px;border:1px solid var(--line);border-radius:7px;background:var(--paper-2);color:var(--ink);box-shadow:0 4px 18px #0002;font:13px/1.5 system-ui,sans-serif;max-width:calc(100vw - 32px);transition:opacity .18s ease,transform .18s ease}
+.copy-toast{transform:translateY(5px)}
+.copy-toast.visible{opacity:1;transform:translateY(0)}
+.copy-toast{inset:auto;margin:0;bottom:24px;left:50%}
+@media(prefers-reduced-motion:reduce){.copy-toast{transition:none}}
+.lua-featured-method{cursor:copy}
 .function-head .function-actions{margin-left:0}
 :root body .function-head>code{flex:0 1 auto}
 .function-head .copy-button{margin-left:4px}
