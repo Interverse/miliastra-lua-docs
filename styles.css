@@ -130,7 +130,7 @@ html[data-theme="dark"] .enum-values code{background:#252a33;color:#d8deea;borde
 /* Progressive disclosure keeps full documentation available without giant cards. */
 .sidebar a.active-section,html[data-theme="dark"] .sidebar a.active-section{background:color-mix(in srgb,var(--accent) 12%,var(--paper-2));color:var(--accent);box-shadow:inset 3px 0 var(--accent);font-weight:650}
 .sidebar a.active-section b{color:var(--accent)}
-.disclosure-body{max-height:26rem;overflow:auto;overscroll-behavior:contain;padding:10px 12px 4px 0;scrollbar-gutter:stable}
+.disclosure-body{max-height:26rem;overflow:auto;overscroll-behavior:auto;padding:10px 12px 4px 0;scrollbar-gutter:stable}
 .disclosure-body:focus-visible{outline:2px solid var(--teal)}
 .method-note.doc-disclosure{padding:9px 12px;border-top:0;border-radius:4px}
 .method-note summary{font-size:12px}
@@ -145,3 +145,59 @@ html[data-theme="dark"] .enum-values code{background:#252a33;color:#d8deea;borde
 .ease-axis{fill:none;stroke:var(--line)}.ease-baseline{stroke:var(--muted);stroke-dasharray:4 4;fill:none;opacity:.5}
 .ease-curve{stroke:var(--teal);stroke-width:2.5;fill:none}#ease-graph text{fill:currentColor}
 @media(max-width:640px){.disclosure-body{max-height:20rem}}
+
+/* Method names lead the hierarchy; supporting metadata stays quiet. */
+:root body .function-card .function-head,:root body .property-card .property-title{background:color-mix(in srgb,var(--paper) 65%,var(--paper-2));border-left:0;border-bottom:1px solid var(--line);padding:14px 18px;line-height:1.6}
+:root body .function-head>code,:root body .property-title>code{font-size:calc(14 * var(--ui,1px));line-height:1.6;font-weight:500;color:var(--ink)}
+:root body .property-title>code{font-weight:750}
+.method-name{color:var(--ink);font-size:1em;font-weight:750;letter-spacing:-.015em}
+.method-owner,.method-arguments{color:var(--muted);font-size:1em;font-weight:400}
+.method-description a,.api-reference{color:var(--teal);text-decoration-color:color-mix(in srgb,var(--teal) 40%,transparent)}
+:root body .detail-kind{color:#8664a7}
+:root body .detail-kind.return{color:var(--teal)}
+:root body .detail-row code.type,:root body .property-row code:nth-child(2){color:#8f3f8a}
+html[data-theme="dark"] body .detail-kind{color:#b79bd2}
+html[data-theme="dark"] body .detail-row code.type,html[data-theme="dark"] body .property-row code:nth-child(2){color:#d794d0}
+.sidebar,html[data-theme="dark"] .sidebar{background:color-mix(in srgb,var(--paper) 70%,var(--paper-2))}
+.sidebar a.active-section,html[data-theme="dark"] .sidebar a.active-section{background:color-mix(in srgb,var(--accent) 6%,var(--paper-2));color:var(--ink);box-shadow:inset 2px 0 color-mix(in srgb,var(--accent) 65%,var(--line));font-weight:600}
+.sidebar a.active-section b{color:var(--muted)}
+html[data-theme="light"] .sidebar a.active-section{background:color-mix(in srgb,var(--accent) 12%,var(--paper-2));color:var(--ink);box-shadow:inset 3px 0 var(--accent)}
+html[data-theme="light"] .sidebar a.active-section b{color:var(--accent)}
+.access-badges{display:flex;flex-wrap:wrap;gap:5px;margin:0 0 7px}
+.access-badges span{font:500 11px/1.5 system-ui,sans-serif;color:var(--muted);border:1px solid var(--line);border-radius:4px;padding:1px 6px;background:color-mix(in srgb,var(--ink) 3%,var(--paper-2))}
+.enum-list{display:grid;gap:18px;border-top:0}
+.enum-body{padding:12px 18px 16px}
+.enum-body .type-description{padding:0;border:0;margin:0 0 10px}
+.enum-body .enum-groups{padding:0}.enum-body .enum-group h3{color:var(--teal)}
+.enum-body .enum-values code{background:#f0ece3;color:#384158;border-radius:4px;padding:5px 8px}
+html[data-theme="dark"] .enum-body .enum-values code{background:#252a33;color:#d8deea}
+
+.alias-legend{color:var(--muted);font-size:13px;margin:0 0 18px}
+.property-title .alias-badge{font:500 11px/1.5 system-ui,sans-serif;color:var(--muted);border:1px solid var(--line);padding:2px 7px;border-radius:4px}
+.alias-options{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:6px 12px;margin-top:12px}
+.alias-options>span{padding:5px 9px;background:color-mix(in srgb,var(--ink) 4%,var(--paper-2));border:1px solid var(--line);border-radius:4px;overflow-wrap:anywhere}
+.type-description h4,.disclosure-body h4{font:650 13px/1.6 system-ui,sans-serif;color:var(--ink);margin:14px 0 8px}
+.type-description ul,.type-description ol{padding-left:22px;margin:6px 0 12px}
+.type-description li+li{margin-top:5px}
+.state-list,.type-description .state-list{display:flex;flex-wrap:wrap;gap:7px;list-style:none;padding:0;margin:8px 0 14px}
+.state-list li,.type-description .state-list li+li{margin:0;padding:4px 10px;border:1px solid var(--line);border-radius:4px;background:color-mix(in srgb,var(--teal) 5%,var(--paper-2));font:500 12px/1.6 "Cascadia Code",Consolas,monospace;color:var(--teal)}
+.type-reference{color:inherit;text-decoration:underline;text-decoration-color:color-mix(in srgb,currentColor 40%,transparent);text-underline-offset:3px}
+.type-reference:hover{color:var(--teal);text-decoration-color:currentColor}
+.type-alternatives{display:flex;flex-direction:column;gap:1px;line-height:1.25}
+.type-alternatives>span{padding-left:7px;border-left:2px solid var(--line);font-size:11px}
+.optional-type{color:var(--muted)}
+.type-alternatives>.collection-type{border:0;padding:0 0 4px;font:500 12px/1.4 system-ui,sans-serif;color:var(--muted)}
+.type-or{color:var(--muted);font:italic 12px/1.5 system-ui,sans-serif}
+.reference-dialog{width:min(800px,calc(100vw - 32px));max-width:none;max-height:calc(100dvh - 40px);padding:0;border:1px solid var(--line);border-radius:10px;background:var(--paper-2);color:var(--ink);box-shadow:0 20px 70px #0004;overflow:hidden}
+.reference-dialog{position:fixed;inset:auto;margin:0}
+.reference-dialog:popover-open{display:flex;flex-direction:column}
+.reference-dialog::backdrop{background:transparent;pointer-events:none}
+.reference-dialog-head{display:flex;align-items:center;gap:12px;padding:15px 18px;background:color-mix(in srgb,var(--paper) 65%,var(--paper-2));border-bottom:1px solid var(--line);flex:none}
+.reference-dialog-head h2{font:700 14px/1.6 "Cascadia Code",Consolas,monospace;margin:0;flex:1;min-width:0;overflow-wrap:anywhere}
+.reference-dialog-head button{border:1px solid var(--line);border-radius:5px;background:var(--paper-2);color:var(--ink);cursor:pointer;padding:5px 10px;font-size:12px}
+.reference-dialog-head .reference-close{font-size:22px;line-height:1;padding:5px 9px}
+.reference-dialog-body{min-height:0;overflow:auto;overscroll-behavior:contain;scrollbar-gutter:stable}
+.reference-dialog-body .function-card{border:0;border-radius:0}
+.reference-dialog-body .disclosure-body{max-height:none;overflow:visible;scrollbar-gutter:auto}
+.reference-open{overflow:hidden}
+@media(max-width:640px){.reference-dialog{width:calc(100vw - 16px);max-height:calc(100dvh - 16px)}.reference-dialog-head{padding:12px}.reference-dialog .property-row{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.reference-dialog .property-row>div{grid-column:1/-1}}

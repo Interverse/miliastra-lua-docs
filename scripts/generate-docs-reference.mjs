@@ -46,6 +46,7 @@ for (const owner of [...new Set(api.functions.map((entry) => entry.owner))]) {
 
 write("## Properties and native types", "");
 for (const type of api.types) {
+  if(type.kind==='editor-alias') continue;
   const fields = api.properties.filter((property) => property.owner === type.name);
   write(`### \`${type.name}\`${type.parent ? ` extends \`${type.parent}\`` : ""}`, "", type.description || "Native host type.", "");
   for (const field of fields) write(`- \`${field.name}: ${field.type}\`${field.description ? ` — ${field.description}` : ""}`);

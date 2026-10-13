@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { mergeLibrary } from "./merge-library.mjs";
 import { localizeDocs } from "./localize-docs.mjs";
+import { resolveEditorAliases } from "./resolve-editor-aliases.mjs";
 
 const root = process.cwd();
 const declaration = fs.readFileSync(path.join(root, "References", "mw_api.d.lua"), "utf8").replace(/\r/g, "");
@@ -125,6 +126,8 @@ for (const property of [["ClientUIImageControl", "imageSource", "Enum.ImageSourc
   if (!properties.some((item) => item.owner === property[0] && item.name === property[1])) properties.push({ owner: property[0], name: property[1], type: property[2], description: property[0] === "ClientUITextBoxControl" && property[1] === "text" ? "Readable and writable text value; confirmed demos append text through a repeating empty-Tween scheduler." : "Observed in runtime testing." });
 }
 mergeLibrary(root, { functions, properties, types, enums });
+const colorValue = types.find(type => type.name === "ColorValue");
+if (colorValue) colorValue.description += "\n\nRetrieve the red, green, blue, and alpha components with [Color.ToRGBA()](lua://Color.ToRGBA).";
 // Keep conflicting source claims explicit rather than silently upgrading them.
 const padding = functions.find(fn => fn.owner === "ClientUIGridScrollerControl" && fn.name === "GetPadding");
 padding.status = "uncertain";
@@ -144,6 +147,7 @@ functions.sort((a, b) => (order.indexOf(a.owner) === -1 ? 999 : order.indexOf(a.
 const data = { version: "7.1", gameVersion: "7.1", generatedAt: "2026-10-12", sourceDocument: "References/miliastra-lua-api/library (7.1), supplemented by prior declarations and confirmed runtime demos; unresolved source conflicts are retained in notes", functions, properties, types, enums };
 const docsDir = path.join(root, "Docs");
 localizeDocs(data);
+resolveEditorAliases(data);
 fs.mkdirSync(docsDir, { recursive: true });
 fs.writeFileSync(path.join(docsDir, "MiliLua_API_Data.json"), `${JSON.stringify(data, null, 2)}\n`);
-console.log(`Generated ${functions.length} functions, ${properties.length} properties, ${types.length} types, and ${enums.length} enum groups.`);
+console.log(`Generated ${data.functions.length} functions, ${data.properties.length} properties, ${data.types.length} types, and ${data.enums.length} enum groups.`);

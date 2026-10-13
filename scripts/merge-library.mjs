@@ -49,7 +49,9 @@ export function mergeLibrary(root, data) {
       if (alias) {
         const values = [];
         while (/^---\|/.test(lines[i + 1]?.trim() || "")) values.push(lines[++i].trim().slice(4));
-        upsert(data.types, { name: alias[1], parent: null, description: `${doc(comments)} Alias: ${alias[2] || values.join(" | ")}.`, source }, item => item.name);
+        const description = doc(comments).replace(/\*Aliases are not a feature[^*]*\*/g, '').trim();
+        const aliasValues = (alias[2] ? alias[2].split(/\s*\|\s*/) : values).map(value => value.trim());
+        upsert(data.types, { name: alias[1], parent: null, description, kind: 'editor-alias', aliasValues, source }, item => item.name);
         comments = [];
         continue;
       }
