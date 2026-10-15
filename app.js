@@ -239,6 +239,88 @@ end`;
   if(entry.owner==='Lua'&&entry.name==='typeof')return '-- Attach to a TextBox; accept only numeric Score values.\n'+wrap('local score = script:GetParam("Score")\nif typeof(score) == "number" then\n    script.object.text = "Score: " .. score\nelse\n    script.object.text = "Score unavailable"\nend');
   return null;
 }
+function tweenEventExample(entry){
+  const sequence=entry.owner==='TweenSequence',v=sequence?'sequence':'tween',name=entry.name;
+  const pause=name==='Pause'||name==='Resume';
+  const action={Kill:'ClosePanel',Complete:'SkipEntrance',Restart:'ShowNotification'}[name];
+  const purpose=pause?'Pause while disabled; continue when enabled.':
+    name==='Kill'?'Cancel the entrance animation when closing the panel.':
+    name==='Complete'?'Skip the entrance animation and show its final position.':
+    'Replay the entrance when another notification arrives.';
+  const lines=['-- Attach to a Client UI control.','-- '+purpose];
+  if(action)lines.push('-- UI action: script:Invoke("'+action+'")');
+  lines.push('local '+v,'','function OnStart()',
+    '    script.object:SetAnchoredPosition(-180, 0)');
+  if(sequence)lines.push('    sequence = game.TweenSequence()',
+    '    sequence:Append(game.Tween(', '        script.object, { anchoredPositionX = 0 }, 0.4', '    ))',
+    '    sequence:Append(game.Tween(', '        script.object, { anchoredPositionY = 20 }, 0.2', '    ))');
+  else lines.push('    tween = game.Tween(', '        script.object, { anchoredPositionX = 0 }, 0.4', '    )');
+  lines.push('    '+v+':Play()','end','');
+  if(pause)lines.push('function OnDisable()', '    if '+v+' then '+v+':Pause() end','end','',
+    'function OnEnable()', '    if '+v+' then '+v+':Resume() end','end');
+  else{
+    lines.push('function '+action+'()');
+    if(name==='Kill')lines.push('    if '+v+' then '+v+':Kill(false) end','    '+v+' = nil','    script.object:SetVisible(false)');
+    else if(name==='Complete')lines.push('    if '+v+' then '+v+':Complete() end');
+    else lines.push('    script.object:SetVisible(true)','    if '+v+' then '+v+':Restart() end');
+    lines.push('end');
+  }
+  lines.push('','function OnDestroy()','    if '+v+' then '+v+':Kill(false) end','end');
+  return lines.join('\n');
+}
+function tweenPlaybackExample(entry){
+  const sequence=entry.owner==='TweenSequence',v=sequence?'sequence':'tween',name=entry.name;
+  if(['Pause','Resume','Kill','Complete','Restart'].includes(name))return tweenEventExample(entry);
+  const setup=sequence?[
+    'sequence = game.TweenSequence()',
+    'sequence:Append(game.Tween(',
+    '    script.object, { anchoredPositionX = 180 }, 3',
+    '))',
+    'sequence:Append(game.Tween(',
+    '    script.object, { anchoredPositionY = 80 }, 1',
+    '))'
+  ]:[
+    'tween = game.Tween(',
+    '    script.object, { anchoredPositionX = 240 }, 4',
+    ')'
+  ];
+  let purpose=sequence?'Move right, then move up.':'Slide a panel to the right.';
+  const extra=[];
+  if(name==='SetEase'){
+    purpose='Slide a panel in, slowing down near its destination.';
+    extra.push('tween:SetEase(Enum.EaseType.OutQuad)');
+  }else if(name==='SetRelative'){
+    purpose='Move 80 units right from the current position.';
+    setup.splice(0,setup.length,'tween = game.Tween(', '    script.object, { anchoredPositionX = 80 }, 1', ')');
+    extra.push('tween:SetRelative(true)');
+  }else if(name==='SetLoops'){
+    purpose='Repeat the movement three times.';extra.push(v+':SetLoops(3)');
+  }else if(sequence&&name==='AppendInterval'){
+    purpose='Move right, wait one second, then move up.';
+    setup.splice(4,0,'sequence:AppendInterval(1)');
+  }else if(sequence&&name==='Join'){
+    purpose='Move right and grow at the same time.';
+    setup.splice(4,setup.length-4,
+      'sequence:Join(game.Tween(',
+      '    script.object, { localScaleX = 1.2, localScaleY = 1.2 }, 3',
+      '))');
+  }else if(sequence&&name==='Insert'){
+    purpose='Start rotating one second into the movement.';
+    setup.splice(4,setup.length-4,
+      'sequence:Insert(1, game.Tween(',
+      '    script.object, { localRotationZ = 15 }, 1',
+      '))');
+  }
+  const lines=['-- Attach to a Client UI control.','-- '+purpose,'local '+v];
+  lines.push('','function OnStart()','    script.object:SetAnchoredPosition('+(name==='SetRelative'?'40':'0')+', 0)');
+  if(name==='Join')lines.push('    script.object:SetLocalScale(1, 1, 1)');
+  if(name==='Insert')lines.push('    script.object:SetLocalRotation(0, 0, 0)');
+  for(const line of [...setup,...extra,v+':Play()'])lines.push('    '+line);
+  lines.push('end');
+  lines.push('','function OnDestroy()');
+  lines.push('    if '+v+' then '+v+':Kill(false) end','end');
+  return lines.join('\n');
+}
 function methodExample(entry){
   const practical=practicalExample(entry);if(practical)return practical;
   if(entry.params.some(param=>/^function\b/.test(param.type)))return callbackExample(entry);
@@ -287,15 +369,7 @@ end
 function OnDestroy()
     script.object:RemoveCursorEventListener(Enum.CursorEventType.CursorDrag, onDrag)
 end`;
-  if(entry.owner==='Tween'||entry.owner==='TweenSequence'){
-    const sequence=entry.owner==='TweenSequence',variable=sequence?'sequence':'tween';
-    let setup=sequence?'sequence = game.TweenSequence()\nsequence:Append(game.Tween(script.object, { anchoredPositionX = 100 }, 1))':'tween = game.Tween(script.object, { anchoredPositionX = 100 }, 1)';
-    if(['Pause','Resume','Complete','Kill','Restart'].includes(entry.name))setup+='\n'+variable+':Play()';
-    if(entry.name==='Resume')setup+='\n'+variable+':Pause()';
-    setup+='\n'+variable+':'+entry.name+'('+args+')';
-    if(!['Play','Pause','Resume','Complete','Kill','Restart'].includes(entry.name))setup+='\n'+variable+':Play()';
-    return '-- Attach to a Client UI control.\nlocal '+variable+'\n\n'+wrap(setup)+'\n\nfunction OnDestroy()\n    if '+variable+' then '+variable+':Kill(false) end\nend';
-  }
+  if(entry.owner==='Tween'||entry.owner==='TweenSequence')return tweenPlaybackExample(entry);
   if(entry.owner==='script'&&entry.name==='Invoke')return 'function ResetPosition()\n    script.object:SetAnchoredPosition(0, 0)\nend\n\n'+wrap('script:Invoke("ResetPosition")');
   if(entry.owner==='script'&&entry.name==='EnableUpdate')return methodExample(API.functions.find(fn=>fn.name==='OnUpdate'&&fn.owner==='Lifecycle'));
   if(entry.owner==='game'&&entry.name==='DestroyClientUIControl')return '-- Attach to the parent of a child named Temporary.\n'+wrap('local child = script.object:GetChild("Temporary")\nif child then game.DestroyClientUIControl(child) end');

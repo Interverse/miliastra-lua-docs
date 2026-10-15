@@ -64,6 +64,8 @@ References/*
 Lua/*
 Update-KnowledgeBase.ps1
 Docs/*
+Handoff/*
+Tests/*
 
 .agents/
 .openai/hosting.json/*

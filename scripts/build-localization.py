@@ -112,6 +112,8 @@ for code,catalog in catalogs.items():
         if 'Global Script' in source_text:
             if len(previous)==2:translated=translated.replace(previous[1],global_script)
             translated=re.sub(r'\bScript\b',script_word,translated)
+        if re.search(r'\bScript\s+(?:Text\s+)?(?:Variable|Mapping|Resource)\b|\b(?:Client|Global|Module)\s+Script\b',source_text,re.I):
+            translated=re.sub(r'\bScript\b',lambda _:script_word,translated)
         catalog[source_text]=translated
     catalog['Top Level Code']=top
     catalog['Global Script']=global_script

@@ -18,6 +18,7 @@ const {chromium}=require('C:/Users/jiong/.cache/codex-runtimes/codex-primary-run
   const comments=new Set(),strings=new Set();
   for(const code of codes)for(const m of code.matchAll(/--[^\n]*|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'/g)){if(m[0].startsWith('--'))comments.add(m[0].slice(2).trim());else{const s=m[0].slice(1,-1);if(/[a-zA-Z]{2}/.test(s)&&!protectedStrings.has(s))strings.add(s)}}
   const identifiers=new Set(['Lua','Miliastra','Wonderland','Tween','TextBox','Image','ContainerControl','CursorEventData','UI','API','ScoreChanged','Score','Speed',...protectedStrings]);
+  for(const code of codes)for(const match of code.matchAll(/\bfunction\s+([A-Za-z_]\w*)\s*\(/g))identifiers.add(match[1]);
   for(const group of [API.functions,API.properties,API.types,API.enums])for(const item of group){identifiers.add(item.name);if(item.owner)identifiers.add(item.owner);for(const p of item.params||[])identifiers.add(p.name);for(const v of item.values||[])identifiers.add(v)}
   return {texts:[...texts],comments:[...comments],strings:[...strings],protectedStrings:[...protectedStrings],identifiers:[...identifiers]};
  });fs.writeFileSync('tmp/localization-source.json',JSON.stringify(data,null,2));console.log(Object.fromEntries(Object.entries(data).map(([k,v])=>[k,v.length])));await b.close();
